@@ -1,0 +1,48 @@
+<% if events.any? %>
+  <% days = events.group_by { |event| event.created_at.to_date } %>
+  <div class="md:hidden">
+    <% days.each do |date, day_events| %>
+      <h3 class="audit-day-heading"><%= audit_day_heading(date) %></h3>
+      <%= render "admin/shared/audit_list", events: day_events %>
+    <% end %>
+  </div>
+
+  <table class="audit-table hidden w-full text-left text-sm md:table">
+    <thead>
+      <tr>
+        <th scope="col" class="w-20"><%= t("admin.audit.when") %></th>
+        <th scope="col"><%= t("admin.audit.event") %></th>
+        <th scope="col"><%= t("admin.audit.people") %></th>
+        <th scope="col" class="w-28 text-right"><%= t("admin.audit.outcome") %></th>
+      </tr>
+    </thead>
+    <% days.each do |date, day_events| %>
+      <tbody>
+        <tr class="audit-day-row"><th scope="rowgroup" colspan="4"><%= audit_day_heading(date) %></th></tr>
+        <% day_events.each do |event| %>
+          <tr class="<%= 'is-attention' if event.needs_attention? %>">
+            <td class="whitespace-nowrap align-top tabular-nums text-muted"><time datetime="<%= event.created_at.iso8601 %>" title="<%= l(event.created_at, format: :long) %>"><%= l(event.created_at, format: "%H:%M") %></time></td>
+            <td class="align-top">
+              <div class="flex items-start gap-3">
+                <%= audit_category_icon(event) %>
+                <div class="min-w-0">
+                  <p class="font-semibold text-ink"><%= audit_action_label(event.action) %></p>
+                  <% if event.metadata.present? || event.source != "web" %>
+                    <div class="mt-1 flex flex-wrap gap-1.5"><% if event.source != "web" %><span class="meta-chip"><%= event.source.humanize %></span><% end %><%= audit_metadata_chips(event) %></div>
+                  <% end %>
+                </div>
+              </div>
+            </td>
+            <td class="align-top"><%= audit_people(event) %></td>
+            <td class="align-top text-right"><%= audit_outcome_badge(event.outcome) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    <% end %>
+  </table>
+<% else %>
+  <div class="px-6 py-12 text-center">
+    <%= heroicon :shield_check, class: "mx-auto size-9 text-line-strong" %>
+    <p class="mt-3 text-sm font-medium text-ink"><%= t("admin.audit.empty") %></p>
+  </div>
+<% end %>

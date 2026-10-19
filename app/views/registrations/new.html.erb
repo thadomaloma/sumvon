@@ -1,0 +1,51 @@
+<% content_for :title, "#{t('auth.create_account')} · Sumvon" %>
+<% timezone_options = ActiveSupport::TimeZone.all.map { |zone| [ zone.to_s, zone.name, { data: { iana: [ zone.tzinfo.identifier, zone.tzinfo.canonical_identifier ].uniq.join(" ") } } ] } %>
+<div class="auth-shell">
+  <section class="auth-pane">
+    <%= render "shared/auth_header", prompt: t("auth.have_account"), link_text: t("auth.sign_in_instead"), link_path: new_session_path %>
+
+    <div class="auth-pane-body auth-pane-body-wide">
+      <h1 class="auth-title"><%= t("auth.create_account") %></h1>
+      <p class="mt-2 text-sm leading-6 text-muted"><%= t("auth.signup_body") %></p>
+      <%= render "shared/auth_flashes" %>
+      <%= form_with model: @user, url: registration_path, class: "mt-6 space-y-5", data: { controller: "country-currency", country_currency_map_value: CountryCatalog.currency_map.to_json } do |form| %>
+        <%= render "shared/errors", object: @user %>
+        <div>
+          <%= form.label :display_name, class: "field-label" do %><%= t("auth.your_name") %> <span class="text-negative" aria-hidden="true">*</span><% end %>
+          <%= form.text_field :display_name, required: true, autofocus: true, autocomplete: "name", maxlength: 80, class: "field", aria: field_aria(@user, :display_name) %>
+          <%= field_error_message(@user, :display_name) %>
+        </div>
+        <div>
+          <%= form.label :email_address, class: "field-label" do %><%= User.human_attribute_name(:email_address) %> <span class="text-negative" aria-hidden="true">*</span><% end %>
+          <%= form.email_field :email_address, required: true, autocomplete: "username", autocapitalize: "none", spellcheck: false, class: "field", aria: field_aria(@user, :email_address) %>
+          <%= field_error_message(@user, :email_address) %>
+        </div>
+        <div data-controller="password-hint" data-password-hint-minimum-value="8">
+          <%= form.label :password, class: "field-label" do %><%= t("auth.create_password") %> <span class="text-negative" aria-hidden="true">*</span><% end %>
+          <%= password_field_with_toggle form, :password, required: true, autocomplete: "new-password", minlength: 8, maxlength: 72,
+                aria: field_aria(@user, :password, hint_id: "password-hint"), data: { password_hint_target: "input", action: "input->password-hint#update" } %>
+          <p id="password-hint" class="field-hint" data-password-hint-target="hint"><%= heroicon :check_circle, variant: :solid, class: "size-4 shrink-0" %><span><%= t("auth.password_hint") %></span></p>
+          <%= field_error_message(@user, :password) %>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:gap-5">
+          <div><%= form.label :country_code, t("auth.country"), class: "field-label" %><%= form.select :country_code, country_options, {}, class: "field", data: { country_currency_target: "country", action: "change->country-currency#countryChanged" } %></div>
+          <div><%= form.label :default_currency, t("auth.main_currency"), class: "field-label" %><%= form.select :default_currency, currency_options, {}, class: "field", data: { country_currency_target: "currency" } %></div>
+        </div>
+        <p class="-mt-2 text-xs leading-5 text-muted"><%= t("auth.currency_hint") %></p>
+        <details class="auth-timezone group" data-controller="timezone-detect" data-timezone-detect-detect-value="<%= @user.errors.empty? %>" <%= "open" if @user.errors.include?(:timezone) %>>
+          <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm">
+            <span class="min-w-0 truncate text-muted"><%= t("auth.time_zone") %>: <span class="font-medium text-ink" data-timezone-detect-target="label"><%= ActiveSupport::TimeZone[@user.timezone].to_s %></span></span>
+            <span class="shrink-0 font-semibold text-brand group-open:hidden"><%= t("auth.change") %></span>
+          </summary>
+          <%= form.label :timezone, class: "sr-only" %>
+          <%= form.select :timezone, timezone_options, {}, class: "field mt-1", data: { timezone_detect_target: "select", action: "change->timezone-detect#sync" } %>
+        </details>
+        <%= form.submit t("auth.create_account"), class: "btn-primary auth-submit w-full", data: { turbo_submits_with: t("auth.creating_account") } %>
+      <% end %>
+    </div>
+
+    <p class="auth-pane-footer lg:hidden"><%= heroicon :lock_closed, class: "size-3.5" %><%= t("auth.private") %></p>
+  </section>
+
+  <%= render "shared/auth_visual" %>
+</div>

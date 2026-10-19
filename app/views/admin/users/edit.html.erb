@@ -1,0 +1,15 @@
+<div class="mx-auto max-w-2xl">
+  <div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="page-eyebrow"><%= t("admin.edit.title") %></p><h1 class="page-title mt-1 truncate"><%= @user.display_name %></h1></div><%= link_to admin_user_path(@user), class: "inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl border border-line bg-white px-3 text-xs font-semibold text-ink-soft shadow-sm" do %><%= heroicon :arrow_left, class: "size-4" %><span class="hidden sm:inline"><%= t("admin.back") %></span><% end %></div>
+  <p class="mt-2 text-sm text-muted"><%= t("admin.edit.description") %></p>
+
+  <%= form_with model: @user, url: admin_user_path(@user), method: :patch, class: "panel mt-6 space-y-5 p-5 sm:p-7" do |form| %>
+    <%= render "shared/errors", object: @user %>
+    <div><%= form.label :display_name, class: "field-label" %><%= form.text_field :display_name, class: "field", required: true %></div>
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div><%= form.label :country_code, class: "field-label" %><%= form.select :country_code, country_options, {}, class: "field" %></div>
+      <div><%= form.label :default_currency, class: "field-label" %><%= form.select :default_currency, currency_options, {}, class: "field" %></div>
+    </div>
+    <div><%= form.label :timezone, class: "field-label" %><%= form.time_zone_select :timezone, ActiveSupport::TimeZone.all, {}, class: "field" %></div>
+    <div class="flex gap-3"><%= form.submit t("admin.edit.title"), class: "btn-primary" %><%= link_to t("forms.cancel"), admin_user_path(@user), class: "btn-secondary" %></div>
+  <% end %>
+</div>

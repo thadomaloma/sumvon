@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title><%= content_for(:title) || "Sumvon" %></title>
+    <meta name="description" content="Know where your money goes">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="theme-color" content="#102b26">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Sumvon">
+    <meta name="application-name" content="Sumvon">
+    <meta name="mobile-web-app-capable" content="yes">
+    <% if authenticated? %><meta name="turbo-cache-control" content="no-cache"><% end %>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <%= tag.link rel: "manifest", href: pwa_manifest_path %>
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body class="app-shell min-h-screen text-ink antialiased" data-controller="pwa" data-pwa-offline-message-value="<%= t('pwa.offline_short') %>" data-pwa-failure-message-value="<%= t('pwa.connection_failed') %>" data-pwa-checking-update-message-value="<%= t('pwa.checking_update') %>" data-pwa-up-to-date-message-value="<%= t('pwa.up_to_date') %>" data-pwa-update-installing-message-value="<%= t('pwa.update_installing') %>" data-pwa-update-check-failed-message-value="<%= t('pwa.update_check_failed') %>" data-pwa-update-unsupported-message-value="<%= t('pwa.update_unsupported') %>">
+    <%= render "shared/pwa_status" %>
+    <% if authenticated? %>
+      <% user_initial = (Current.user.display_name.to_s.first.presence || Current.user.email_address.first).upcase %>
+      <aside class="app-sidebar fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r lg:flex">
+        <%= link_to root_path, class: "brand-lockup flex h-16 shrink-0 items-center gap-2.5 px-5" do %>
+          <span class="brand-emblem size-8" aria-hidden="true"><%= image_tag "/icon.svg", alt: "", class: "size-full", draggable: false %></span>
+          <span class="brand-name">Sumvon</span>
+        <% end %>
+        <div class="px-3 pt-2">
+          <%= link_to new_transaction_path, class: "btn-primary w-full gap-1.5" do %><%= heroicon :plus, class: "size-4" %><%= t("transactions.add") %><% end %>
+        </div>
+        <nav class="mt-5 flex flex-col gap-0.5 px-3" aria-label="Primary">
+          <%= nav_link t("nav.home"), root_path, icon: :home %>
+          <%= nav_link t("nav.transactions"), transactions_path, icon: :arrows_right_left %>
+          <%= nav_link t("nav.budget"), budgets_path, icon: :chart_pie %>
+          <%= nav_link t("nav.reports"), monthly_report_path(Date.current.year, Date.current.month), icon: :chart_bar %>
+          <%= nav_link t("nav.accounts"), financial_accounts_path, icon: :wallet %>
+        </nav>
+        <div class="mt-6 flex flex-col gap-0.5 px-3">
+          <p class="sidebar-section-label px-3 pb-1.5"><%= t("nav.more") %></p>
+          <%= nav_link t("finance_tools.title"), finance_tools_path, icon: :sparkles %>
+          <%= nav_link t("nav.settings"), settings_path, icon: :cog_6_tooth %>
+          <% if Current.user.admin_access? %><%= nav_link t("nav.admin"), admin_root_path, icon: :presentation_chart_line %><% end %>
+        </div>
+        <div class="mt-auto border-t p-3 sidebar-footer">
+          <div class="flex items-center gap-3 rounded-xl px-2 py-2">
+            <span class="avatar size-9 text-sm"><%= user_initial %></span>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-semibold text-ink"><%= Current.user.display_name %></p>
+              <p class="truncate text-xs text-muted"><%= Current.user.email_address %></p>
+            </div>
+            <%= button_to session_path, method: :delete, class: "icon-button", title: t("auth.sign_out"), aria: { label: t("auth.sign_out") }, form: { data: { controller: "session-cleanup", action: "submit->session-cleanup#clear" } } do %><%= heroicon :arrow_right_on_rectangle, class: "size-5" %><% end %>
+          </div>
+        </div>
+      </aside>
+    <% end %>
+
+    <div class="<%= 'lg:pl-64' if authenticated? %>">
+    <% if authenticated? %>
+      <header class="app-header sticky top-0 z-30 border-b pt-[env(safe-area-inset-top)]" data-controller="header-gesture-lock">
+        <div class="app-header-inner mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 lg:h-16 lg:px-8">
+          <%= link_to root_path, class: "brand-lockup flex items-center gap-2.5 lg:hidden" do %>
+            <span class="brand-emblem size-8" aria-hidden="true"><%= image_tag "/icon.svg", alt: "", class: "size-full", draggable: false %></span>
+            <span class="brand-name">Sumvon</span>
+          <% end %>
+          <p class="hidden text-sm font-medium text-muted lg:block"><%= l(Date.current, format: "%A, %-d %B %Y") %></p>
+          <div class="flex items-center gap-2">
+            <% unless content_for?(:hide_header_add) %>
+              <%= link_to new_transaction_path, class: "btn-secondary header-add-action hidden gap-1.5 whitespace-nowrap sm:inline-flex lg:hidden" do %>
+                <%= heroicon :plus, class: "size-4" %><%= t("transactions.add") %>
+              <% end %>
+            <% end %>
+            <details class="group relative">
+              <summary class="profile-trigger flex h-10 cursor-pointer list-none items-center gap-1.5 rounded-full border py-1 pl-1 pr-2.5 transition" aria-label="<%= t('nav.more') %>">
+                <span class="avatar size-8 text-xs"><%= user_initial %></span>
+                <%= heroicon :chevron_down, class: "size-3.5 text-muted transition group-open:rotate-180" %>
+              </summary>
+              <div class="profile-menu absolute right-0 mt-2 w-[min(17rem,calc(100vw-2rem))] rounded-2xl border p-1.5">
+                <div class="border-b px-3 py-3 menu-divider">
+                  <p class="truncate text-sm font-semibold text-ink"><%= Current.user.display_name %></p>
+                  <p class="mt-0.5 truncate text-xs text-muted"><%= Current.user.email_address %></p>
+                </div>
+                <div class="py-1">
+                  <%= link_to settings_path, class: "menu-item" do %><%= heroicon :cog_6_tooth, class: "size-5" %><%= t("nav.settings") %><% end %>
+                  <%= link_to finance_tools_path, class: "menu-item" do %><%= heroicon :sparkles, class: "size-5" %><%= t("finance_tools.title") %><% end %>
+                  <%= link_to financial_accounts_path, class: "menu-item lg:hidden" do %><%= heroicon :wallet, class: "size-5" %><%= t("nav.accounts") %><% end %>
+                  <% if Current.user.admin_access? %><%= link_to admin_root_path, class: "menu-item" do %><%= heroicon :presentation_chart_line, class: "size-5" %><%= t("nav.admin") %><% end %><% end %>
+                </div>
+                <div class="border-t pt-1 menu-divider">
+                  <%= button_to session_path, method: :delete, class: "menu-item menu-item-danger w-full text-left", form: { data: { controller: "session-cleanup", action: "submit->session-cleanup#clear" } } do %><%= heroicon :arrow_right_on_rectangle, class: "size-5" %><%= t("auth.sign_out") %><% end %>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+      </header>
+    <% end %>
+
+    <main class="<%= authenticated? ? 'app-main mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pb-14' : 'mx-auto min-h-screen w-full' %>">
+      <%= render "shared/flashes" unless content_for?(:inline_flashes) %>
+      <%= yield %>
+    </main>
+    </div>
+
+    <% if authenticated? %>
+      <nav class="app-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t pb-[max(env(safe-area-inset-bottom),0.25rem)] lg:hidden" aria-label="Mobile primary">
+        <div class="mx-auto grid h-16 max-w-lg grid-cols-5 items-center px-2">
+          <%= mobile_nav_link :home, t("nav.home"), root_path %>
+          <%= mobile_nav_link :arrows_right_left, t("nav.transactions"), transactions_path %>
+          <%= link_to new_transaction_path, class: "flex flex-col items-center", aria: { label: t("transactions.add") } do %>
+            <span class="brand-action grid size-12 place-items-center rounded-2xl"><%= heroicon :plus, class: "size-6" %></span>
+          <% end %>
+          <%= mobile_nav_link :chart_pie, t("nav.budget"), budgets_path %>
+          <%= mobile_nav_link :chart_bar, t("nav.reports"), monthly_report_path(Date.current.year, Date.current.month) %>
+        </div>
+      </nav>
+    <% end %>
+  </body>
+</html>

@@ -1,0 +1,25 @@
+<% if pagy.pages > 1 %>
+  <footer class="flex flex-col gap-3 border-t border-line py-4 sm:flex-row sm:items-center sm:justify-between" data-pagination>
+    <p class="text-center text-xs font-medium text-muted sm:text-left">
+      <%= t("pagination.showing", from: pagy.from, to: pagy.to, count: pagy.count) %>
+    </p>
+
+    <nav class="flex items-center justify-between gap-3 sm:hidden" aria-label="<%= t('pagination.aria_label') %>">
+      <% if pagy.previous %>
+        <%= link_to t("pagination.previous"), pagy.page_url(pagy.previous), class: "btn-secondary min-h-10 px-3 py-2", rel: "prev" %>
+      <% else %>
+        <span class="inline-flex min-h-10 items-center rounded-xl border border-line px-3 py-2 text-sm font-semibold text-line-strong" aria-disabled="true"><%= t("pagination.previous") %></span>
+      <% end %>
+      <span class="text-xs font-semibold tabular-nums text-muted"><%= t("pagination.page_of", page: pagy.page, pages: pagy.pages) %></span>
+      <% if pagy.next %>
+        <%= link_to t("pagination.next"), pagy.page_url(pagy.next), class: "btn-secondary min-h-10 px-3 py-2", rel: "next" %>
+      <% else %>
+        <span class="inline-flex min-h-10 items-center rounded-xl border border-line px-3 py-2 text-sm font-semibold text-line-strong" aria-disabled="true"><%= t("pagination.next") %></span>
+      <% end %>
+    </nav>
+
+    <div class="pagination-desktop hidden sm:block">
+      <%= raw pagy.series_nav(aria_label: t("pagination.aria_label")) %>
+    </div>
+  </footer>
+<% end %>

@@ -1,0 +1,72 @@
+<%= form_with model: transaction, class: "space-y-5", data: { controller: "transaction-form transaction-draft submit-state receipt-scan", transaction_draft_key_value: "sumvon.transaction-draft.v1.user-#{Current.user.id}", receipt_scan_url_value: transactions_receipt_scan_path, action: "input->transaction-draft#scheduleSave change->transaction-draft#scheduleSave submit->transaction-draft#submit turbo:submit-end->transaction-draft#submitted" } do |form| %>
+  <%= render "shared/errors", object: transaction %>
+  <% if transaction.new_record? %><%= form.hidden_field :idempotency_key %><% end %>
+  <div class="hidden rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950" data-transaction-draft-target="notice" role="status">
+    <p class="font-semibold"><%= t("pwa.draft_found") %></p>
+    <div class="mt-3 flex gap-2"><button type="button" class="min-h-11 rounded-lg bg-amber-900 px-3 font-semibold text-white" data-action="transaction-draft#continueDraft"><%= t("pwa.continue_draft") %></button><button type="button" class="min-h-11 rounded-lg px-3 font-semibold underline" data-action="transaction-draft#discard"><%= t("pwa.discard_draft") %></button></div>
+  </div>
+  <fieldset>
+    <legend class="sr-only"><%= t("transactions.type") %></legend>
+    <% kind_icons = { "income" => :arrow_trending_up, "expense" => :arrow_trending_down, "transfer" => :arrows_right_left } %>
+    <div class="transaction-kind-switch grid grid-cols-3 rounded-2xl p-1.5">
+      <% Transaction::USER_SELECTABLE_KINDS.each do |kind| %>
+        <label class="cursor-pointer">
+          <%= form.radio_button :kind, kind, class: "transaction-kind-input sr-only", data: { action: "transaction-form#change", transaction_form_target: "kind" } %>
+          <span class="transaction-kind-option flex min-h-12 items-center justify-center gap-2 rounded-xl border border-transparent px-2 py-2.5 text-center text-sm font-semibold sm:text-base"><%= heroicon kind_icons.fetch(kind), class: "size-4" %><%= kind.humanize %></span>
+        </label>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <div>
+    <%= form.label :amount, class: "field-label" %>
+    <%= form.number_field :amount, value: transaction.amount || (amount_from_minor(transaction.amount_minor, transaction.currency) if transaction.amount_minor), step: "any", min: 0, required: true, autofocus: true, inputmode: "decimal", placeholder: "0", class: "field h-20 text-center text-4xl font-semibold tabular-nums", data: { receipt_scan_target: "amount" } %>
+  </div>
+
+  <div><%= form.label :financial_account_id, t("transactions.from_account"), class: "field-label", data: { transaction_form_target: "accountLabel" } %><%= form.collection_select :financial_account_id, @accounts, :id, :name, {}, class: "field", data: { action: "transaction-form#accountChanged", transaction_form_target: "account" } %></div>
+
+  <div data-transaction-form-target="categoryGroup">
+    <%= form.label :category_id, class: "field-label" %>
+    <%= form.select :category_id, @categories.map { |category| [category.name, category.id, { data: { kind: category.kind } }] }, { include_blank: t("transactions.choose_category") }, class: "field", data: { transaction_form_target: "category" } %>
+  </div>
+
+  <div data-transaction-form-target="transferGroup" hidden>
+    <%= form.label :transfer_account_id, t("transactions.to_account"), class: "field-label" %>
+    <%= form.collection_select :transfer_account_id, @accounts, :id, :name, { include_blank: t("transactions.choose_account") }, class: "field", data: { transaction_form_target: "transferAccount" } %>
+    <p class="mt-1.5 text-xs text-muted"><%= t("transactions.fx_note") %></p>
+  </div>
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div><%= form.label :transaction_date, class: "field-label" %><%= form.date_field :transaction_date, class: "field", required: true, data: { receipt_scan_target: "date" } %></div>
+    <div><%= form.label :description, class: "field-label" %><%= form.text_field :description, class: "field", maxlength: 240, placeholder: t("transactions.note_placeholder") %></div>
+  </div>
+  <div>
+    <label class="field-label"><%= t("transactions.scan_receipt") %></label>
+    <div class="grid gap-2 sm:grid-cols-2">
+      <label class="btn-secondary inline-flex w-full cursor-pointer items-center justify-center gap-2">
+        <%= heroicon :camera, class: "size-5" %><%= t("transactions.scan_receipt_camera") %>
+        <input type="file" accept="image/*" capture="environment" class="sr-only" data-action="change->receipt-scan#scan">
+      </label>
+      <label class="btn-secondary inline-flex w-full cursor-pointer items-center justify-center gap-2">
+        <%= heroicon :arrow_up_tray, class: "size-5" %><%= t("transactions.scan_receipt_library") %>
+        <input type="file" accept="image/jpeg,image/png,image/heic,image/heif,.heic,.heif" class="sr-only" data-action="change->receipt-scan#scan">
+      </label>
+    </div>
+    <p class="mt-1.5 text-xs text-muted" data-receipt-scan-target="status"
+      data-scanning="<%= t("transactions.scan_receipt_scanning") %>"
+      data-found="<%= t("transactions.scan_receipt_found") %>"
+      data-amount-label="<%= t("transactions.scan_receipt_amount_label") %>"
+      data-date-label="<%= t("transactions.scan_receipt_date_label") %>"
+      data-kind-label="<%= t("transactions.scan_receipt_kind_label") %>"
+      data-not-found="<%= t("transactions.scan_receipt_not_found") %>"
+      data-kept="<%= t("transactions.scan_receipt_kept") %>"
+      data-raw-unsupported="<%= t("transactions.scan_receipt_raw_unsupported") %>"
+      data-too-large="<%= t("transactions.scan_receipt_too_large") %>"
+      data-pick-amount="<%= t("transactions.scan_receipt_pick_amount") %>"
+      data-other-amounts="<%= t("transactions.scan_receipt_other_amounts") %>"
+      data-timed-out="<%= t("transactions.scan_receipt_timed_out") %>"
+      data-failed="<%= t("transactions.scan_receipt_failed") %>"><%= t("transactions.scan_receipt_hint") %><% if Transactions::ReceiptVision.enabled? %> <%= t("transactions.scan_receipt_vision_notice") %><% elsif Transactions::CloudReceiptOcr.enabled? %> <%= t("transactions.scan_receipt_cloud_ocr_notice") %><% end %></p>
+    <div class="mt-2 flex flex-wrap items-center gap-2" data-receipt-scan-target="alternatives" hidden></div>
+  </div>
+  <div class="flex gap-3"><%= form.submit class: "btn-primary flex-1 sm:flex-none" %><%= link_to t("forms.cancel"), transactions_path, class: "btn-secondary" %></div>
+<% end %>

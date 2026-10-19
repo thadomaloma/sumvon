@@ -1,0 +1,28 @@
+<% content_for :title, "#{t('admin.audit.title')} · Sumvon" %>
+<% filter_count = @active_filters.except("user_id").size %>
+<div class="mx-auto max-w-6xl">
+  <div>
+    <p class="page-eyebrow"><%= t("admin.audit.eyebrow") %></p>
+    <h1 class="page-title mt-1"><%= t("admin.audit.title") %></h1>
+    <p class="mt-2 max-w-3xl text-sm leading-6 text-muted"><%= t("admin.audit.description") %></p>
+  </div>
+  <%= render "admin/shared/nav" %>
+
+  <details class="panel group mt-5 overflow-hidden lg:hidden" <%= "open" if filter_count.positive? %> data-filter-layout="mobile">
+    <summary class="flex min-h-13 cursor-pointer list-none items-center justify-between px-4">
+      <span class="flex items-center gap-2 text-sm font-semibold"><span class="grid size-8 place-items-center rounded-lg bg-brand-tint text-brand"><%= heroicon :funnel, class: "size-4" %></span><%= t("filters.title") %></span>
+      <span class="flex items-center gap-2"><% if filter_count.positive? %><span class="status-badge status-badge-info"><%= t("filters.active", count: filter_count) %></span><% end %><%= heroicon :chevron_down, class: "size-4 text-subtle transition group-open:rotate-180" %></span>
+    </summary>
+    <%= render "filter_form", form_class: "grid grid-cols-2 gap-3 border-t border-line p-4", prefix: "mobile" %>
+  </details>
+
+  <%= render "filter_form", form_class: "panel mt-5 hidden items-end gap-3 p-4 lg:grid lg:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))_auto]", prefix: "desktop" %>
+
+  <div class="mt-5 flex flex-wrap items-center justify-between gap-2">
+    <p class="text-sm text-muted" data-result-count><%= t("admin.audit.matching", count: @pagy.count) %></p>
+    <% if filter_count.positive? %><%= link_to t("admin.audit.clear_filters"), admin_audit_events_path, class: "link-action" %><% end %>
+  </div>
+
+  <section class="panel mt-2 overflow-hidden"><%= render "admin/shared/audit_table", events: @audit_events %></section>
+  <%= render "shared/pagination", pagy: @pagy %>
+</div>

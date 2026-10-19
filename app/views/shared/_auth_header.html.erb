@@ -1,0 +1,13 @@
+<%# locals: (prompt: nil, link_text: nil, link_path: nil) %>
+<header class="flex items-center justify-between gap-4">
+  <%= link_to new_session_path, class: "brand-lockup inline-flex items-center gap-2.5" do %>
+    <span class="brand-emblem size-9" aria-hidden="true"><%= image_tag "/icon.svg", alt: "", class: "size-full" %></span>
+    <span class="brand-name text-lg">Sumvon</span>
+  <% end %>
+  <% if link_path %>
+    <p class="text-sm text-muted">
+      <span class="hidden sm:inline"><%= prompt %></span>
+      <%= link_to link_text, link_path, class: "auth-switch-link" %>
+    </p>
+  <% end %>
+</header>

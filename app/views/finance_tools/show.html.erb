@@ -1,0 +1,39 @@
+<div class="flex items-end justify-between gap-4"><div><p class="page-eyebrow"><%= t("finance_tools.eyebrow") %></p><h1 class="page-title mt-1"><%= t("finance_tools.title") %></h1></div><%= link_to new_transaction_import_path, class: "btn-secondary inline-flex items-center gap-2" do %><%= heroicon :arrow_up_tray, class: "size-5" %><%= t("imports.title") %><% end %></div>
+
+<div class="mt-6 grid gap-5 lg:grid-cols-2">
+  <section class="panel p-5 sm:p-6">
+    <h2 class="text-lg font-semibold"><%= t("reconciliations.title") %></h2><p class="mt-1 text-sm text-muted"><%= t("reconciliations.help") %></p>
+    <%= form_with url: account_reconciliations_path, scope: :account_reconciliation, class: "mt-5 space-y-4" do |form| %>
+      <div><%= form.label :financial_account_id, t("filters.account"), class: "field-label" %><%= form.collection_select :financial_account_id, @accounts, :id, :name, {}, class: "field" %></div>
+      <div class="grid grid-cols-2 gap-3"><div><%= form.label :statement_balance, t("reconciliations.statement_balance"), class: "field-label" %><%= form.number_field :statement_balance, step: "any", required: true, class: "field" %></div><div><%= form.label :reconciled_on, t("reconciliations.date"), class: "field-label" %><%= form.date_field :reconciled_on, value: Date.current, required: true, class: "field" %></div></div>
+      <div><%= form.label :note, class: "field-label" %><%= form.text_field :note, maxlength: 240, class: "field" %></div>
+      <%= form.submit t("reconciliations.submit"), class: "btn-primary" %>
+    <% end %>
+  </section>
+
+  <section class="panel p-5 sm:p-6">
+    <h2 class="text-lg font-semibold"><%= t("alerts.title") %></h2><p class="mt-1 text-sm text-muted"><%= t("alerts.help") %></p>
+    <% if @alerts.any? %><div class="mt-4 space-y-3"><% @alerts.each do |alert| %><div class="rounded-xl border p-3"><p class="font-semibold"><%= alert[:title] %></p><p class="mt-1 text-sm text-muted"><%= alert[:detail] %></p></div><% end %></div><% else %><p class="mt-5 rounded-xl bg-brand-tint p-4 text-sm text-brand"><%= t("alerts.clear") %></p><% end %>
+  </section>
+</div>
+
+<section class="panel mt-5 p-5 sm:p-6">
+  <div class="flex items-start justify-between gap-4"><div><h2 class="text-lg font-semibold"><%= t("recurring.title") %></h2><p class="mt-1 text-sm text-muted"><%= t("recurring.help") %></p></div><%= button_to t("recurring.run"), recurring_transactions_run_path, method: :post, class: "btn-secondary" %></div>
+  <%= form_with url: recurring_transactions_path, scope: :recurring_transaction, class: "mt-5 grid gap-3 md:grid-cols-3" do |form| %>
+    <%= form.select :kind, Transaction::USER_SELECTABLE_KINDS.map { |kind| [ kind.humanize, kind ] }, {}, class: "field" %>
+    <%= form.number_field :amount, step: "any", min: 0, required: true, placeholder: t("recurring.amount"), class: "field" %>
+    <%= form.collection_select :financial_account_id, @accounts, :id, :name, {}, class: "field" %>
+    <%= form.select :category_id, @categories.map { |category| [ "#{category.name} (#{category.kind})", category.id ] }, { include_blank: t("transactions.choose_category") }, class: "field" %>
+    <%= form.collection_select :transfer_account_id, @accounts, :id, :name, { include_blank: t("transactions.choose_account") }, class: "field" %>
+    <%= form.select :frequency, RecurringTransaction.frequencies.keys.map { |frequency| [ frequency.humanize, frequency ] }, {}, class: "field" %>
+    <%= form.date_field :next_on, value: Date.current, required: true, class: "field" %>
+    <%= form.text_field :description, maxlength: 240, placeholder: t("transactions.note_placeholder"), class: "field md:col-span-2" %>
+    <%= form.submit t("recurring.create"), class: "btn-primary md:w-fit" %>
+  <% end %>
+  <% if @recurring_transactions.any? %><div class="mt-5 divide-y divide-line"><% @recurring_transactions.each do |rule| %><div class="flex items-center justify-between gap-4 py-3"><div><p class="font-semibold"><%= rule.description.presence || rule.kind.humanize %></p><p class="text-sm text-muted"><%= format_money(rule.amount_minor, rule.currency) %> · <%= rule.frequency %> · <%= l(rule.next_on, format: :long) %></p></div><%= button_to t("forms.delete"), recurring_transaction_path(rule), method: :delete, class: "text-sm font-semibold text-rose-700" %></div><% end %></div><% end %>
+</section>
+
+<div class="mt-5 grid gap-5 lg:grid-cols-2">
+  <section class="panel p-5 sm:p-6"><h2 class="text-lg font-semibold"><%= t("forecast.title") %></h2><p class="mt-1 text-sm text-muted"><%= t("forecast.help") %></p><% if @forecast.by_currency.any? %><div class="mt-4 space-y-3"><% @forecast.by_currency.each do |currency, totals| %><div class="rounded-xl bg-surface-muted p-4"><p class="font-semibold"><%= currency %> · <%= t("forecast.occurrences", count: totals[:occurrences]) %></p><p class="mt-2 text-sm text-positive">+<%= format_money(totals[:income_minor], currency) %></p><p class="text-sm text-rose-700">−<%= format_money(totals[:expense_minor], currency) %></p><% if totals[:transfer_minor].positive? %><p class="text-sm text-muted"><%= t("forecast.transfers", amount: format_money(totals[:transfer_minor], currency)) %></p><% end %></div><% end %></div><% else %><p class="mt-5 text-sm text-muted"><%= t("forecast.empty") %></p><% end %></section>
+  <section class="panel p-5 sm:p-6"><h2 class="text-lg font-semibold"><%= t("monthly_closes.title") %></h2><p class="mt-1 text-sm text-muted"><%= t("monthly_closes.help") %></p><%= form_with url: monthly_closes_path, scope: :monthly_close, class: "mt-4 flex gap-3" do |form| %><%= form.month_field :period, value: Date.current.strftime("%Y-%m"), required: true, class: "field" %><%= form.submit t("monthly_closes.close"), class: "btn-primary" %><% end %><% if @monthly_closes.any? %><div class="mt-4 divide-y"><% @monthly_closes.each do |close| %><div class="flex items-center justify-between py-3"><p class="font-semibold"><%= l(close.period, format: "%B %Y") %></p><%= button_to t("monthly_closes.reopen"), monthly_close_path(close), method: :delete, class: "text-sm font-semibold text-rose-700" %></div><% end %></div><% end %></section>
+</div>

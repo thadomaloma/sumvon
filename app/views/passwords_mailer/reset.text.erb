@@ -1,0 +1,9 @@
+Sumvon — <%= t("auth.promise") %>
+
+<%= t("passwords.mailer.body") %>
+
+<%= t("passwords.mailer.action") %>:
+<%= edit_password_url(@user.password_reset_token) %>
+
+<%= t("passwords.mailer.expiry", duration: distance_of_time_in_words(0, @user.password_reset_token_expires_in)) %>
+<%= t("passwords.mailer.ignore") %>

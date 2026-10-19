@@ -1,0 +1,8 @@
+<div class="fixed inset-x-0 top-0 z-50 hidden bg-amber-50 px-4 pb-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] text-center text-sm font-semibold text-amber-950 shadow-sm" role="status" aria-live="polite" data-pwa-target="networkBanner">
+  <%= heroicon :exclamation_triangle, variant: :solid, class: "mr-1.5 inline size-4 align-text-bottom text-amber-600" %>
+  <span data-pwa-target="networkMessage"><%= t("pwa.offline_short") %></span>
+  <button type="button" class="ml-2 min-h-10 rounded-lg px-2 underline underline-offset-2" data-action="pwa#retry"><%= t("pwa.retry") %></button>
+</div>
+<div class="fixed inset-x-4 bottom-24 z-50 hidden rounded-2xl border border-line bg-white p-4 shadow-xl sm:left-auto sm:max-w-sm lg:bottom-6" role="status" aria-live="polite" data-pwa-target="updateNotice">
+  <div class="flex items-center justify-between gap-4"><p class="flex items-center gap-2 text-sm font-medium"><%= heroicon :arrow_path, class: "size-5 shrink-0 text-brand" %><%= t("pwa.update_ready") %></p><button type="button" class="btn-secondary" data-action="pwa#applyUpdate"><%= t("pwa.refresh") %></button></div>
+</div>

@@ -1,0 +1,21 @@
+<%= form_with model: budget, class: "space-y-6", data: { controller: "submit-state" } do |form| %>
+  <%= render "shared/errors", object: budget %>
+  <div class="grid gap-5 sm:grid-cols-3">
+    <div><%= form.label :reporting_month, t("budgets.month"), class: "field-label" %><%= month_field_tag "budget[reporting_month]", format("%04d-%02d", budget.year, budget.month), class: "field", disabled: budget.persisted? %><%= form.hidden_field :year %><%= form.hidden_field :month %></div>
+    <div><%= form.label :currency, class: "field-label" %><%= form.select :currency, MoneyAmount::CURRENCIES, {}, class: "field", disabled: budget.persisted? %><% if budget.persisted? %><%= form.hidden_field :currency %><% end %></div>
+    <div><%= form.label :planned_amount, t("budgets.total_target"), class: "field-label" %><%= form.number_field :planned_amount, value: budget.planned_amount || (amount_from_minor(budget.planned_amount_minor, budget.currency) if budget.planned_amount_minor), min: 0, step: "any", required: true, inputmode: "decimal", class: "field" %></div>
+  </div>
+
+  <section>
+    <label class="mb-5 flex items-start gap-3 rounded-xl bg-surface-muted p-4"><%= form.check_box :rollover_enabled, class: "mt-0.5 size-4 rounded border-line-strong text-brand" %><span><strong class="block text-sm"><%= t("budgets.rollover") %></strong><span class="mt-1 block text-xs leading-5 text-muted"><%= t("budgets.rollover_hint") %></span></span></label>
+    <div class="flex items-end justify-between gap-4"><div><h2 class="text-lg font-semibold"><%= t("budgets.category_allocations") %></h2><p class="mt-1 text-sm text-muted"><%= t("budgets.allocations_optional") %></p></div></div>
+    <div class="mt-4 divide-y divide-line rounded-xl border border-line bg-white px-4">
+      <% budget.allocatable_categories.each do |category| %>
+        <% allocation = budget.budget_categories.detect { |item| item.category_id == category.id && !item.marked_for_destruction? } %>
+        <% value = budget.allocations&.fetch(category.id.to_s, nil) || (amount_from_minor(allocation.planned_amount_minor, budget.currency) if allocation) %>
+        <div class="flex items-center gap-3 py-3"><span class="min-w-0 flex-1 truncate text-sm font-medium"><%= category.name %></span><%= number_field_tag "budget[allocations][#{category.id}]", value, min: 0, step: "any", inputmode: "decimal", placeholder: "0", class: "w-32 rounded-xl border border-line-strong px-3 py-2 text-right tabular-nums outline-none focus:border-brand focus:ring-2 focus:ring-emerald-700/20", aria: { label: t("budgets.allocation_for", category: category.name) } %></div>
+      <% end %>
+    </div>
+  </section>
+  <div class="flex gap-3"><%= form.submit class: "btn-primary" %><%= link_to t("forms.cancel"), budget.persisted? ? budget_path(budget) : budgets_path, class: "btn-secondary" %></div>
+<% end %>

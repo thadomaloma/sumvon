@@ -1,0 +1,38 @@
+<section class="auth-visual hidden lg:block" aria-labelledby="auth-visual-title">
+  <div class="relative z-10 mx-auto flex min-h-full w-full max-w-xl flex-col justify-center gap-9 px-12 py-12 xl:px-16">
+    <div>
+      <h2 id="auth-visual-title" class="text-[1.75rem] font-semibold leading-[1.15] tracking-[-0.03em] text-white"><%= t("auth.promise") %></h2>
+      <p class="mt-4 max-w-md text-base leading-7 text-white/70"><%= t("auth.promise_body") %></p>
+    </div>
+
+    <figure class="auth-preview" aria-hidden="true">
+      <div class="auth-preview-balance">
+        <p class="text-xs font-medium text-white/65"><%= t("dashboard.total_balance") %></p>
+        <p class="mt-2 text-[2rem] font-semibold leading-none tracking-[-0.035em] text-white"><%= money_tag(34_505_000, "INR", class: "money-display") %></p>
+        <div class="mt-5 flex h-20 items-end justify-between gap-2">
+          <% [ [ 88, 40 ], [ 90, 38 ], [ 91, 37 ], [ 93, 36 ], [ 95, 36 ], [ 100, 35 ] ].each_with_index do |(income, expense), index| %>
+            <span class="auth-preview-pair <%= 'is-current' if index == 5 %>">
+              <span class="auth-preview-bar auth-preview-income" style="height: <%= income %>%"></span>
+              <span class="auth-preview-bar auth-preview-expense" style="height: <%= expense %>%"></span>
+            </span>
+          <% end %>
+        </div>
+      </div>
+      <ul class="auth-preview-list">
+        <% [ [ "Food & Groceries", "Cash", 120_000, "−" ], [ "Salary", "Main Bank", 8_300_000, "+" ], [ "Transport", "Credit Card", 35_000, "−" ] ].each do |name, meta, amount, sign| %>
+          <li class="flex items-center gap-3 py-2.5">
+            <%= category_icon_tag(name, size: :sm) %>
+            <span class="min-w-0 flex-1"><span class="block truncate text-sm font-medium text-ink"><%= name %></span><span class="block truncate text-xs text-muted"><%= meta %></span></span>
+            <%= money_tag(amount, "INR", sign:, class: [ "text-sm font-semibold", sign == "+" ? "text-positive" : "text-ink" ]) %>
+          </li>
+        <% end %>
+      </ul>
+    </figure>
+
+    <ul class="auth-trust space-y-3 text-sm text-white/80">
+      <% [ [ :lock_closed, "auth.trust_private" ], [ :globe_alt, "auth.trust_currencies" ], [ :device_phone_mobile, "auth.trust_install" ] ].each do |icon, key| %>
+        <li class="flex items-start gap-3"><span class="auth-trust-icon"><%= heroicon icon, class: "size-4" %></span><span class="pt-0.5"><%= t(key) %></span></li>
+      <% end %>
+    </ul>
+  </div>
+</section>

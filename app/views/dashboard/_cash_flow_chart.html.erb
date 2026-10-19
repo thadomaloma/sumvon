@@ -1,0 +1,66 @@
+<% periods = @cash_flow_trend.periods %>
+<% max_value = periods.flat_map { |period| [period[:income_minor], period[:expense_minor]] }.max.to_i %>
+<% half_value = (max_value / 2.0).round %>
+
+<section id="cash-flow-trend" class="panel h-full overflow-hidden p-5 sm:p-6" data-currency="<%= @trend_currency %>" aria-labelledby="cash-flow-trend-title">
+  <div class="flex items-start justify-between gap-4">
+    <div class="min-w-0">
+      <h2 id="cash-flow-trend-title" class="section-title"><%= t("dashboard.cash_flow_trend") %></h2>
+      <p class="mt-0.5 text-xs text-muted sm:text-[0.8125rem]"><%= t("dashboard.six_month_view") %> · <%= @trend_currency %></p>
+    </div>
+    <% if @cash_flow_activity %>
+      <div class="flex shrink-0 items-center gap-3 pt-0.5 text-xs font-medium text-muted" aria-hidden="true">
+        <span class="inline-flex items-center gap-1.5"><span class="size-2 rounded-full bg-income"></span><%= t("reports.income") %></span>
+        <span class="inline-flex items-center gap-1.5"><span class="size-2 rounded-full bg-expense"></span><%= t("reports.expenses") %></span>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @cash_flow_activity %>
+    <div class="mt-6 grid grid-cols-[2.75rem_1fr] gap-2 sm:grid-cols-[3.25rem_1fr] sm:gap-3">
+      <div class="flex h-44 flex-col justify-between pb-6 text-right text-[0.6875rem] tabular-nums text-subtle sm:h-52" aria-hidden="true">
+        <span class="-mt-1.5"><%= compact_money(max_value, @trend_currency) %></span>
+        <span><%= compact_money(half_value, @trend_currency) %></span>
+        <span class="-mb-1.5"><%= compact_money(0, @trend_currency) %></span>
+      </div>
+      <div class="relative h-44 sm:h-52">
+        <div class="chart-grid pointer-events-none absolute inset-x-0 top-0 border-t border-dashed"></div>
+        <div class="chart-grid pointer-events-none absolute inset-x-0 top-[calc((100%-1.5rem)/2)] border-t border-dashed"></div>
+        <div class="chart-grid pointer-events-none absolute inset-x-0 bottom-6 border-t"></div>
+        <div class="absolute inset-0 flex items-stretch justify-around gap-1 sm:gap-2">
+          <% periods.each do |period| %>
+            <% income_height = max_value.zero? ? 0 : (period[:income_minor].to_d / max_value * 100).round %>
+            <% expense_height = max_value.zero? ? 0 : (period[:expense_minor].to_d / max_value * 100).round %>
+            <% current = period[:month] == Date.current.beginning_of_month %>
+            <div class="chart-column flex min-w-0 flex-1 flex-col <%= 'is-current' if current %>">
+              <div class="flex min-h-0 flex-1 items-end justify-center gap-1" aria-hidden="true">
+                <span class="chart-bar chart-income-bar" style="height: <%= period[:income_minor].positive? ? [income_height, 2].max : 0 %>%" title="<%= t('dashboard.chart_income_label', month: l(period[:month], format: '%B %Y'), amount: format_money(period[:income_minor], @trend_currency)) %>"></span>
+                <span class="chart-bar chart-expense-bar" style="height: <%= period[:expense_minor].positive? ? [expense_height, 2].max : 0 %>%" title="<%= t('dashboard.chart_expense_label', month: l(period[:month], format: '%B %Y'), amount: format_money(period[:expense_minor], @trend_currency)) %>"></span>
+              </div>
+              <p class="flex h-6 items-end justify-center truncate text-[0.6875rem] <%= current ? 'font-semibold text-ink' : 'font-medium text-subtle' %>"><%= l(period[:month], format: "%b") %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="sr-only">
+      <p><%= t("dashboard.cash_flow_trend_help", currency: @trend_currency) %></p>
+      <ul>
+        <% periods.each do |period| %>
+          <li><%= l(period[:month], format: "%B %Y") %>: <%= t("reports.income") %> <%= format_money(period[:income_minor], @trend_currency) %>; <%= t("reports.expenses") %> <%= format_money(period[:expense_minor], @trend_currency) %>.</li>
+        <% end %>
+      </ul>
+    </div>
+  <% else %>
+    <div class="mt-5 rounded-xl border border-dashed border-line-strong bg-surface-muted px-4 py-8 text-center sm:px-5">
+      <p class="font-semibold text-ink"><%= t("dashboard.no_trend_title") %></p>
+      <p class="mx-auto mt-1.5 max-w-md text-sm leading-6 text-muted"><%= t("dashboard.no_trend_body", currency: @trend_currency) %></p>
+      <%= link_to t("transactions.add"), new_transaction_path, class: "btn-secondary mt-5" %>
+    </div>
+  <% end %>
+
+  <div class="mt-4 flex justify-end border-t border-line pt-3">
+    <%= link_to monthly_report_path(Date.current.year, Date.current.month), class: "link-action" do %><%= t("dashboard.open_report").delete_suffix(" →") %><%= heroicon :arrow_right, class: "size-3.5" %><% end %>
+  </div>
+</section>

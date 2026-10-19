@@ -1,0 +1,30 @@
+<div class="mx-auto max-w-6xl">
+  <div><p class="page-eyebrow"><%= t("admin.users_eyebrow") %></p><h1 class="page-title mt-1"><%= t("admin.users_title") %></h1></div>
+  <%= render "admin/shared/nav" %>
+
+  <% active_filter_count = [params[:q], params[:account_status], params[:role]].count(&:present?) %>
+  <details class="panel group mt-5 overflow-hidden md:hidden" <%= "open" if active_filter_count.positive? %>>
+    <summary class="flex min-h-13 cursor-pointer list-none items-center justify-between px-4"><span class="flex items-center gap-2 text-sm font-semibold"><span class="grid size-8 place-items-center rounded-lg bg-brand-tint text-brand"><%= heroicon :funnel, class: "size-4" %></span><%= t("filters.title") %></span><span class="flex items-center gap-2"><% if active_filter_count.positive? %><span class="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800"><%= t("filters.active", count: active_filter_count) %></span><% end %><%= heroicon :chevron_down, class: "size-4 text-subtle transition group-open:rotate-180" %></span></summary>
+    <%= form_with url: admin_users_path, method: :get, class: "grid gap-3 border-t border-line bg-surface-muted/60 p-4", data: { turbo_frame: "admin-users" } do |form| %>
+      <div><%= form.label :q, t("admin.search"), class: "field-label" %><%= form.search_field :q, value: params[:q], class: "field", placeholder: t("admin.search_placeholder") %></div>
+      <div class="grid grid-cols-2 gap-3"><div><%= form.label :account_status, t("admin.account_status"), class: "field-label" %><%= form.select :account_status, [[t("admin.active_only"), "active"], [t("admin.suspended_only"), "suspended"]], { include_blank: t("admin.all_account_statuses"), selected: params[:account_status] }, class: "field" %></div><div><%= form.label :role, t("admin.role_filter"), class: "field-label" %><%= form.select :role, [[t("admin.administrators"), "admin"]], { include_blank: t("admin.all_roles"), selected: params[:role] }, class: "field" %></div></div>
+      <div class="grid grid-cols-[1fr_auto] gap-2"><%= form.submit t("filters.apply"), class: "btn-primary w-full justify-center" %><%= link_to t("filters.clear"), admin_users_path, class: "btn-secondary justify-center px-4" %></div>
+    <% end %>
+  </details>
+
+  <%= form_with url: admin_users_path, method: :get, class: "panel mt-6 hidden gap-3 p-4 md:grid md:grid-cols-[1fr_0.6fr_0.6fr_auto]", data: { turbo_frame: "admin-users" } do |form| %>
+    <div><%= form.label :q, t("admin.search"), class: "field-label" %><%= form.search_field :q, value: params[:q], class: "field", placeholder: t("admin.search_placeholder") %></div>
+    <div><%= form.label :account_status, t("admin.account_status"), class: "field-label" %><%= form.select :account_status, [[t("admin.active_only"), "active"], [t("admin.suspended_only"), "suspended"]], { include_blank: t("admin.all_account_statuses"), selected: params[:account_status] }, class: "field" %></div>
+    <div><%= form.label :role, t("admin.role_filter"), class: "field-label" %><%= form.select :role, [[t("admin.administrators"), "admin"]], { include_blank: t("admin.all_roles"), selected: params[:role] }, class: "field" %></div>
+    <div class="flex items-end gap-2"><%= form.submit t("filters.apply"), class: "btn-primary" %><%= link_to t("filters.clear"), admin_users_path, class: "btn-secondary" %></div>
+  <% end %>
+
+  <%= turbo_frame_tag "admin-users" do %>
+    <section class="panel mt-5 overflow-hidden">
+      <%= render "admin/shared/user_cards", users: @users %>
+      <div class="hidden overflow-x-auto md:block"><table class="min-w-full divide-y divide-line text-left text-sm"><thead class="bg-surface-muted text-xs uppercase tracking-wide text-muted"><tr><th class="px-5 py-3"><%= t("admin.user") %></th><th class="px-5 py-3"><%= t("admin.country") %></th><th class="px-5 py-3"><%= t("admin.account_status") %></th><th class="px-5 py-3"><%= t("admin.joined") %></th><th class="px-5 py-3"><span class="sr-only"><%= t("admin.open") %></span></th></tr></thead><tbody class="divide-y divide-line"><% @users.each do |user| %><tr><td class="px-5 py-4"><p class="flex items-center gap-1.5 font-semibold"><%= user.display_name %><% if user.admin_access? %><span class="rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-800">ADMIN</span><% end %></p><p class="text-xs text-muted"><%= user.email_address %></p></td><td class="px-5 py-4"><%= user.country_code %> · <%= user.default_currency %></td><td class="px-5 py-4"><%= account_status_badge(user) %></td><td class="whitespace-nowrap px-5 py-4 text-muted"><%= l(user.created_at.to_date, format: :short) %></td><td class="px-5 py-4 text-right"><%= link_to t("admin.open"), admin_user_path(user), class: "font-semibold text-brand", data: { turbo_frame: "_top" } %></td></tr><% end %></tbody></table></div>
+      <% if @users.empty? %><p class="p-8 text-center text-sm text-muted"><%= t("admin.no_users") %></p><% end %>
+    </section>
+    <%= render "shared/pagination", pagy: @pagy %>
+  <% end %>
+</div>

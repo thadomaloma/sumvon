@@ -1,0 +1,17 @@
+<%= form_with model: account, class: "space-y-5", data: { controller: "submit-state" } do |form| %>
+  <%= render "shared/errors", object: account %>
+  <div><%= form.label :name, class: "field-label" %><%= form.text_field :name, class: "field", autofocus: true, required: true, placeholder: t("accounts.name_placeholder") %></div>
+  <div><%= form.label :account_type, class: "field-label" %><%= form.select :account_type, FinancialAccount.account_types.keys.map { |type| [type.humanize, type] }, {}, class: "field" %></div>
+  <div><%= form.label :currency, class: "field-label" %><%= form.select :currency, MoneyAmount::CURRENCIES, {}, class: "field" %></div>
+  <div>
+    <%= form.label :opening_balance, t("accounts.opening_balance"), class: "field-label" %>
+    <%= form.number_field :opening_balance, value: account.opening_balance || amount_from_minor(account.opening_balance_form_minor, account.currency || Current.user.default_currency), step: "any", class: "field", inputmode: "decimal" %>
+    <p class="mt-1.5 text-xs text-muted"><%= t("accounts.balance_hint") %></p>
+  </div>
+  <div>
+    <%= form.label :balance_started_on, t("accounts.balance_started_on"), class: "field-label" %>
+    <%= form.date_field :balance_started_on, class: "field", required: true %>
+    <p class="mt-1.5 text-xs text-muted"><%= t("accounts.balance_started_on_hint") %></p>
+  </div>
+  <div class="flex gap-3"><%= form.submit class: "btn-primary" %><%= link_to t("forms.cancel"), financial_accounts_path, class: "btn-secondary" %></div>
+<% end %>

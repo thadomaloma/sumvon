@@ -1,0 +1,31 @@
+<%= form_with url: transactions_path, method: :get, class: form_class do |form| %>
+  <% if compact %>
+    <% selected_year, selected_month = params[:month].to_s.match(/\A(\d{4})-(\d{2})\z/)&.captures %>
+    <div class="col-span-2 grid grid-cols-2 gap-2" data-controller="month-filter" data-month-filter-current-year-value="<%= Date.current.year %>">
+      <%= hidden_field_tag :month, params[:month], data: { month_filter_target: "value" } %>
+      <select id="<%= field_prefix %>-month-part" class="field mt-0 min-h-11 text-sm" aria-label="<%= t('filters.month') %>" data-month-filter-target="month" data-action="change->month-filter#monthChanged">
+        <option value=""><%= t("filters.all_months") %></option>
+        <% I18n.t("date.month_names").compact.each_with_index do |month_name, index| %>
+          <option value="<%= format('%02d', index + 1) %>" <%= "selected" if selected_month == format('%02d', index + 1) %>><%= month_name %></option>
+        <% end %>
+      </select>
+      <select id="<%= field_prefix %>-year-part" class="field mt-0 min-h-11 text-sm" aria-label="<%= t('filters.year') %>" data-month-filter-target="year" data-action="change->month-filter#sync">
+        <option value=""><%= t("filters.year") %></option>
+        <% @filter_years.each do |year| %><option value="<%= year %>" <%= "selected" if selected_year == year.to_s %>><%= year %></option><% end %>
+      </select>
+    </div>
+  <% else %>
+    <%= form.month_field :month, value: params[:month], id: "#{field_prefix}-month", class: "field mt-0 min-h-11 text-sm", aria: { label: t("filters.month") } %>
+  <% end %>
+  <%= form.select :kind, [[t("filters.all_types"), ""]] + Transaction::USER_SELECTABLE_KINDS.map { |kind| [kind.humanize, kind] }, { selected: params[:kind] }, id: "#{field_prefix}-kind", class: "field mt-0 min-h-11 text-sm", aria: { label: t("filters.type") } %>
+  <%= form.select :account_id, [[t("filters.all_accounts"), ""]] + @accounts.map { |account| [account.name, account.id] }, { selected: params[:account_id] }, id: "#{field_prefix}-account", class: "field mt-0 min-h-11 text-sm", aria: { label: t("filters.account") } %>
+  <%= form.select :category_id, [[t("filters.all_categories"), ""]] + @categories.map { |category| [category.name, category.id] }, { selected: params[:category_id] }, id: "#{field_prefix}-category", class: [ "field mt-0 min-h-11 text-sm", ("col-span-2" if compact) ], aria: { label: t("filters.category") } %>
+  <% if compact %>
+    <div class="col-span-2 mt-1 flex items-center gap-2">
+      <%= form.button type: "submit", class: "btn-primary min-h-10 flex-1 gap-2 py-2" do %><%= heroicon :funnel, class: "size-4" %><%= t("filters.apply") %><% end %>
+      <% if active_filters.any? %><%= link_to t("filters.clear"), transactions_path, class: "btn-secondary min-h-10 px-3 py-2" %><% end %>
+    </div>
+  <% else %>
+    <%= form.button type: "submit", class: "btn-secondary inline-flex items-center justify-center gap-2" do %><%= heroicon :funnel, class: "size-5" %><%= t("filters.apply") %><% end %>
+  <% end %>
+<% end %>

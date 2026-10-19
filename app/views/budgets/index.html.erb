@@ -1,0 +1,25 @@
+<% content_for :title, "#{t('budgets.title')} · Sumvon" %>
+<div class="flex items-end justify-between gap-4">
+  <div><p class="page-eyebrow"><%= t("budgets.eyebrow") %></p><h1 class="page-title mt-1"><%= t("budgets.title") %></h1></div>
+  <%= link_to new_budget_path(month: @month.strftime("%Y-%m")), class: "btn-primary inline-flex items-center gap-2" do %><%= heroicon :plus, class: "size-5" %><%= t("budgets.create") %><% end %>
+</div>
+
+<nav class="mt-6 panel flex items-center justify-between p-2" aria-label="<%= t('reports.period_navigation') %>">
+  <%= link_to budgets_path(month: @month.prev_month.strftime("%Y-%m")), class: "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-muted hover:bg-surface-muted" do %><%= heroicon :arrow_left, class: "size-4" %><%= l(@month.prev_month, format: '%b') %><% end %>
+  <span class="font-semibold"><%= l(@month, format: "%B %Y") %></span>
+  <%= link_to budgets_path(month: @month.next_month.strftime("%Y-%m")), class: "inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-muted hover:bg-surface-muted" do %><%= l(@month.next_month, format: '%b') %><%= heroicon :arrow_right, class: "size-4" %><% end %>
+</nav>
+
+<% if @summaries.any? %>
+  <div class="mt-5 space-y-4">
+    <% @summaries.each do |summary| %>
+      <%= link_to summary.budget, class: "panel block p-5 sm:p-6" do %>
+        <div class="flex items-start justify-between gap-3"><div><p class="text-sm font-medium text-muted"><%= summary.currency %></p><p class="mt-1 text-2xl font-semibold tabular-nums"><%= format_money(summary.spent_amount_minor, summary.currency) %> <span class="text-base font-normal text-subtle">/ <%= format_money(summary.planned_amount_minor, summary.currency) %></span></p></div><span class="rounded-full bg-canvas px-3 py-1 text-xs font-semibold text-ink-soft"><%= budget_status_label(summary.status) %></span></div>
+        <div class="mt-4"><%= render "progress", percentage: summary.used_percentage, label: t("budgets.used_label", percentage: summary.used_percentage) %></div>
+        <div class="mt-3 flex justify-between text-sm"><span class="text-muted"><%= t("budgets.used", percentage: summary.used_percentage) %></span><span class="font-semibold"><%= t("budgets.remaining_amount", amount: format_money(summary.remaining_amount_minor, summary.currency)) %></span></div>
+      <% end %>
+    <% end %>
+  </div>
+<% else %>
+  <section class="panel mt-5 px-6 py-12 text-center"><div class="mx-auto grid size-12 place-items-center rounded-xl bg-brand-tint text-brand"><%= heroicon :chart_pie, class: "size-6" %></div><h2 class="mt-4 text-lg font-semibold"><%= t("budgets.empty_title") %></h2><p class="mx-auto mt-2 max-w-md text-sm text-muted"><%= t("budgets.empty_body") %></p><%= link_to t("budgets.create"), new_budget_path(month: @month.strftime("%Y-%m")), class: "btn-primary mt-5" %></section>
+<% end %>

@@ -1,0 +1,640 @@
+en:
+  errors:
+    messages:
+      invalid_money: must use valid digits and the currency precision
+      closed_month: belongs to a closed month
+      invalid_allocation: "%{category} allocation must use valid digits and the currency precision"
+  activerecord:
+    attributes:
+      transaction:
+        amount_minor: Amount
+      budget:
+        planned_amount_minor: Planned amount
+      budget_category:
+        planned_amount_minor: Category allocation
+      financial_account:
+        opening_balance_minor: Opening balance
+  date:
+    formats:
+      short: "%b %-d"
+      long: "%B %-d, %Y"
+  nav:
+    home: Home
+    transactions: Transactions
+    budget: Budget
+    reports: Reports
+    accounts: Accounts
+    settings: Settings
+    more: More
+    admin: Admin
+  finance_tools:
+    eyebrow: Automate and verify your money
+    title: Finance tools
+  reconciliations:
+    title: Reconcile an account
+    help: Match Sumvon to a bank statement without rewriting transaction history. Any difference is kept as an audited adjustment.
+    statement_balance: Statement balance
+    date: Statement date
+    submit: Reconcile
+    created: "Account reconciled. Adjustment: %{amount}."
+    invalid: Reconciliation details are invalid.
+  recurring:
+    title: Recurring transactions
+    help: Schedule salary, rent, subscriptions, and transfers. Due items can be generated safely without duplicates.
+    amount: Amount
+    create: Add schedule
+    run: Generate due items
+    created: Recurring transaction created.
+    deleted: Recurring transaction deleted.
+    generated:
+      one: 1 due transaction generated.
+      other: "%{count} due transactions generated."
+    generated_with_failures: "%{count} due transactions generated; %{failures} schedules need attention. Check for an archived account or a closed month."
+  forecast:
+    title: 90-day cash-flow forecast
+    help: Expected income and outflow from active recurring schedules.
+    occurrences:
+      one: 1 expected item
+      other: "%{count} expected items"
+    empty: Add a recurring transaction to see a forecast.
+    transfers: "Transfers: %{amount} moved between accounts"
+  alerts:
+    title: Smart alerts
+    help: Overdrawn accounts, budget pressure, possible duplicates, and unusually large expenses.
+    clear: No money alerts need attention right now.
+  monthly_closes:
+    title: Monthly close
+    help: Save the month's totals and lock its transactions from accidental edits. You can reopen it later.
+    close: Close month
+    reopen: Reopen
+    created: Month closed and locked.
+    reopened: Month reopened.
+    invalid: This month is already closed or is invalid.
+    locked: This month is closed. Reopen it in Finance tools before changing transactions.
+  imports:
+    eyebrow: Bring your history with you
+    title: Import transactions
+    help: Upload a Sumvon export or a Japanese bank statement. Choose your bank when listed, or use auto-detect for another bank with recognizable columns. Existing matching rows are safely skipped.
+    source: File source
+    sources:
+      sumvon: Sumvon CSV
+      auto: Other Japanese bank (auto-detect CSV or PDF)
+      japan_post: Japan Post Bank CSV
+      mufg: MUFG CSV or PDF
+      mizuho: Mizuho CSV or PDF
+      chiba_bank: Chiba Bank CSV
+      smbc: SMBC CSV
+      chiba_kogyo: Chiba Kogyo CSV or PDF
+    bank_defaults: Japanese bank import settings
+    bank_defaults_help: Required for every Japanese bank statement. Deposits and withdrawals use the categories selected here; imported rows immediately update the selected account balance.
+    income_category: Deposit category
+    expense_category: Withdrawal category
+    file: CSV or PDF file
+    file_help: CSV supports UTF-8 and Japanese Windows/Shift-JIS encodings. PDF import works for selectable-text statement tables; scanned image PDFs cannot be read.
+    submit: Import transactions
+    created:
+      one: 1 transaction imported.
+      other: "%{count} transactions imported."
+    partial: "%{count} rows imported before validation issues were found."
+  auth:
+    promise: "Know where your money goes"
+    promise_body: "A calm, private view of everyday finances across countries and currencies."
+    private: "Your financial records remain private to your account."
+    sign_in: Sign in
+    sign_out: Sign out
+    forgot: Forgot password?
+    show_password: Show password
+    your_name: Your name
+    country: Country
+    main_currency: Main currency
+    currency_hint: Your country sets the usual currency. You can pick another.
+    create_password: Create a password
+    password_hint: Use at least 8 characters.
+    signing_in: Signing in…
+    creating_account: Creating account…
+    time_zone: Time zone
+    change: Change
+    sign_in_instead: Sign in
+    create_account_instead: Create account
+    hide_password: Hide password
+    sign_in_title: Sign in to Sumvon
+    sign_in_body: Welcome back. Pick up where you left off.
+    trust_private: Your financial records stay private to your account.
+    trust_currencies: Every currency kept separate, with no guessed exchange rates.
+    trust_install: Install it on your phone and add spending in seconds.
+    no_account: New to Sumvon?
+    have_account: Already have an account?
+    create_account: Create account
+    signup_body: "It's free and takes about a minute. You can change these details later."
+    welcome: "Welcome to Sumvon. Create your first account to get started."
+    try_later: "Please try again later."
+    invalid_credentials: Try another email address or password.
+    suspended: "This account has been suspended. Contact support if you believe this is a mistake."
+  passwords:
+    email: Email address
+    back_to_sign_in: Back to sign in
+    request:
+      eyebrow: Account recovery
+      title: Reset your password
+      body: Enter the email address connected to your Sumvon account. If it matches an account, we'll send a secure reset link.
+      submit: Send reset instructions
+      privacy: For your privacy, we show the same confirmation whether or not an account exists for that email.
+    reset:
+      eyebrow: Secure your account
+      title: Choose a new password
+      body: Set a password you do not use elsewhere. Saving it will sign out every existing Sumvon session.
+      new_password: Create a new password
+      saving: Saving…
+      submit: Update password
+      security_note: For security, the reset link expires automatically and can only be used for this account.
+    messages:
+      instructions_sent: Password reset instructions sent if an account with that email exists.
+      reset_complete: Password has been reset. Sign in with your new password.
+      mismatch: Use a password with at least 8 characters.
+      invalid_link: Password reset link is invalid or has expired.
+      try_later: Please wait a few minutes before requesting another reset link.
+    mailer:
+      subject: Reset your Sumvon password
+      heading: Reset your password
+      body: We received a request to reset the password for your Sumvon account.
+      action: Choose a new password
+      expiry: "This secure link expires in %{duration}."
+      ignore: If you did not request this, you can ignore this email. Your password will not change.
+  dashboard:
+    greeting: "Hello, %{name}"
+    total_balance: Net account balance
+    position_label: "All %{currency} account balances minus credit-card dues"
+    cash_flow: Net cash flow this month
+    income: Income this month
+    expenses: Spent this month
+    savings: Savings this month
+    income_short: Income
+    expenses_short: Spent
+    savings_short: Savings
+    monthly_snapshot: This month
+    budget_status: This month's budget
+    budget_remaining: "%{amount} left in your spending plan"
+    no_budget_title: Set a monthly spending plan
+    no_budget_body: See how your spending tracks without restricting transactions.
+    open_report: View this month's report →
+    recent: Recent activity
+    view_all: View all
+    empty_title: "Start with the money you already use"
+    empty_body: "Add a cash, bank, wallet, savings, or credit account. It takes less than a minute."
+    six_month_view: Six-month view
+    cash_flow_trend: Income vs expenses
+    cash_flow_trend_help: "Monthly recorded cash flow in %{currency}; currencies are never combined."
+    chart_income_label: "%{month} income: %{amount}"
+    chart_expense_label: "%{month} expenses: %{amount}"
+    no_trend_title: No cash-flow trend yet
+    no_trend_body: "No income or expenses are recorded in %{currency} for the last six months."
+    vs_month: "vs %{month}"
+    upcoming_note: "This month includes %{amounts} dated after today. Your balance counts them from their date."
+    savings_rate: "%{rate}% of income saved"
+    budget_used: used
+    budget_of: "of %{amount}"
+  accounts:
+    eyebrow: Where your money lives
+    title: Accounts
+    add: Add account
+    step: "First step"
+    new_title: Create a financial account
+    edit_title: Edit account
+    name_placeholder: "e.g. Main Bank or Cash"
+    opening_balance: Opening balance
+    balance_hint: "Enter the balance immediately before tracking starts. For a credit card, enter the amount owed as a positive number."
+    balance_started_on: Track balance from
+    balance_started_on_hint: "Only transactions on or after this date affect the account balance. Earlier activity stays in reports without being counted twice."
+    balance_since: "Balance tracked from %{date}"
+    activity_cutoff_hint: "Activity before %{date} is kept for history and reports, but does not change this balance."
+    activity: Account activity
+    archive: Archive account
+    restore: Restore account
+    archived_label: Archived
+    empty_title: No accounts yet
+    empty_body: "Add the first place where you keep or owe money."
+    created: "Account created. Now add your first transaction."
+    updated: Account updated.
+    archived: Account archived.
+    restored: Account restored.
+    net_worth: Net worth by currency
+    net_worth_note: "Assets minus credit-card liabilities. Archived accounts with balances remain included."
+    position_detail: "Assets %{assets} · Liabilities %{liabilities}"
+    asset: Asset
+    liability: Liability
+    overdrawn: Overdrawn asset
+  budgets:
+    eyebrow: A calm plan for monthly spending
+    title: Budgets
+    create: Create budget
+    rollover: Carry unused budget forward
+    rollover_hint: Add last month's positive remaining amount to this month's available plan. Overspending is never carried as debt.
+    rolled_over: "%{amount} rolled over"
+    overspending_alert: "You are %{amount} over this month's plan. Review category spending before adding new commitments."
+    performance: Six-month budget performance
+    performance_help: Planned and actual spending stay in one currency and are compared month by month.
+    plan: Plan
+    spent: Spent
+    result: Remaining
+    new_title: Plan this month
+    edit_title: Edit budget
+    plan_eyebrow: Monthly spending plan
+    monthly_budget: Monthly budget
+    month: Month
+    total_target: Total spending target
+    category_allocations: Category allocations
+    allocations_optional: Optional—allocate only the categories that matter to you.
+    allocation_for: "Budget allocation for %{category}"
+    spent_of_plan: Spent of planned
+    remaining: Remaining
+    used_short: Used
+    days_left: Days remaining
+    unallocated: Unallocated
+    by_category: Category progress
+    no_allocations: No category allocations were set for this budget.
+    empty_title: No budget for this month
+    empty_body: Set a flexible spending target and optionally allocate it across categories.
+    used: "%{percentage}% used"
+    used_label: "%{percentage}% of budget used"
+    category_used_label: "%{category}: %{percentage}% used"
+    remaining_amount: "%{amount} remaining"
+    pacing: "You have used %{used}% of this budget with %{days} days remaining."
+    over_by: "%{amount} over allocation"
+    left: "%{amount} left"
+    copy_next: Copy planned amounts to next month
+    delete_confirm: Delete this budget? Transactions will not be affected.
+    created: Budget created.
+    updated: Budget updated.
+    deleted: Budget deleted.
+    statuses:
+      on_track: On track
+      watch: Watch closely
+      near_limit: Near limit
+      over_budget: Over budget
+  reports:
+    eyebrow: Understand your month
+    title: Reports
+    period_navigation: Report period
+    income: Income
+    expenses: Expenses
+    savings: Savings
+    savings_rate: "%{rate}% savings rate"
+    rate_unavailable: Savings rate unavailable without income
+    empty_title: "No activity recorded for %{month} yet"
+    empty_body: Add a transaction or create a spending plan for this month.
+    spending_by_category: Where your money went
+    category_help: Ranked by expense amount for this month.
+    transaction_count:
+      one: 1 transaction
+      other: "%{count} transactions"
+    comparison: Compared with the previous month
+    vs_previous: Difference from previous month
+    no_comparison: No previous-month activity is available for comparison.
+    trends: Financial trends
+    trends_help: "Income and expenses in %{currency}; currencies are never combined."
+    months: "%{count}m"
+    category_trend: Category trend
+    choose_category: Choose a category
+    show_trend: Show
+    net_worth: Financial position
+    net_worth_note: "Your %{currency} account balances minus credit-card dues."
+    assets_liabilities: "Assets %{assets} · Liabilities %{liabilities}"
+  transactions:
+    upcoming: Upcoming
+    upcoming_title: Dated after today
+    upcoming_income: "%{amount} in income"
+    upcoming_expenses: "%{amount} in expenses"
+    and: and
+    today: Today
+    yesterday: Yesterday
+    eyebrow: Your financial timeline
+    title: Transactions
+    add: Add transaction
+    new_title: Add transaction
+    edit_title: Edit transaction
+    fast_entry: Fast entry
+    type: Transaction type
+    from_account: Account
+    to_account: To account
+    choose_category: Choose a category
+    choose_account: Choose an account
+    note_placeholder: "Optional note"
+    fx_note: "Transfers currently require accounts with the same currency."
+    transfer: Transfer
+    account_needed: Add an account first
+    account_needed_body: "A transaction needs a cash, bank, wallet, savings, or credit account."
+    empty_title: No transactions here yet
+    empty_body: "Start by adding your first income or expense."
+    created: Transaction added.
+    updated: Transaction updated and totals recalculated.
+    deleted: Transaction deleted.
+    delete_confirm: "Delete this transaction? Account totals will be recalculated."
+    already_saved: This transaction was already saved.
+    scan_receipt: Receipt
+    scan_receipt_cloud_ocr_notice: To read it, Sumvon sends a resized copy of the photo, without location data, to Google Cloud Vision.
+    scan_receipt_vision_notice: To read it, Sumvon sends a resized copy of the photo, without location data, to Anthropic's Claude.
+    scan_receipt_camera: Take receipt photo
+    scan_receipt_library: Choose saved photo
+    scan_receipt_hint: Use a clear JPEG, PNG, or HEIC photo of a receipt or ATM slip with the Total / 合計 or amount line visible. Check the filled amount before saving. The photo is not saved.
+    scan_receipt_scanning: Scanning receipt…
+    scan_receipt_found: Filled in
+    scan_receipt_amount_label: amount
+    scan_receipt_date_label: date
+    scan_receipt_kind_label: transfer type (choose the from and to accounts)
+    scan_receipt_not_found: Couldn't clearly read a Total / 合計 amount or date. Enter them manually.
+    scan_receipt_pick_amount: Couldn't tell which amount is the total. Tap the right one, or type it.
+    scan_receipt_other_amounts: "Not right? Other amounts on the receipt:"
+    scan_receipt_raw_unsupported: This is a RAW (ProRAW/DNG) photo, which can't be scanned. Choose a JPEG or HEIC photo, or turn off ProRAW in Settings → Camera → Formats.
+    scan_receipt_too_large: This photo is larger than 25 MB. Choose a smaller photo.
+    scan_receipt_kept: Kept the details you typed while the receipt was scanning.
+    scan_receipt_timed_out: Scanning took too long. Try a closer, sharper photo of the total, or enter the details manually.
+    scan_receipt_failed: Couldn't scan that photo. Enter the details manually.
+    scan_receipt_rate_limited: Too many receipt scans. Wait a minute and try again.
+    category: Category
+    transaction_date: Date
+    export: Export
+    export_csv: Export CSV
+    export_csv_hint: Spreadsheet data
+    print_statement: A4 statement
+    print_statement_hint: Print or save as PDF
+    statement:
+      title: Transaction statement
+      all_time: All transactions
+      type_filter: "Type: %{type}"
+      account_filter: "Account: %{account}"
+      category_filter: "Category: %{category}"
+      generated: Generated %{date}
+      income: Income
+      expenses: Expenses
+      net: Net cash flow
+      breakdown_expense: Spending by category
+      breakdown_income: Income by category
+      uncategorized: Uncategorized
+      other_categories:
+        one: 1 other category
+        other: "%{count} other categories"
+      upcoming_note:
+        one: "Includes 1 transaction dated after today (%{amounts}). Account balances only count it from that date."
+        other: "Includes %{count} transactions dated after today (%{amounts}). Account balances only count them from those dates."
+      date: Date
+      details: Details
+      account: Account
+      type: Type
+      amount: Amount
+      no_transactions: No transactions match these filters.
+      back: Back to transactions
+      print: Print / Save PDF
+      print_help: Choose A4 paper, Portrait orientation, and enable background graphics in the print dialog.
+      confidential: Private financial statement
+  pagination:
+    aria_label: Pages
+    showing: "Showing %{from}–%{to} of %{count}"
+    page_of: "Page %{page} of %{pages}"
+    previous: Previous
+    next: Next
+  filters:
+    title: Filters
+    active: "%{count} active"
+    month: Month
+    all_months: All months
+    year: Year
+    type: Type
+    account: Account
+    category: Category
+    all_types: All types
+    all_accounts: All accounts
+    all_categories: All categories
+    apply: Apply filters
+    clear: Clear
+  settings:
+    eyebrow: Your preferences
+    title: Settings
+    save: Save settings
+    saved: Settings saved.
+    signed_in: Signed-in email
+    country_currency_hint: Choosing a country selects its usual currency. You can still choose a different currency before saving; existing accounts and transactions are not converted.
+  forms:
+    fix_errors: "Please check the following:"
+    cancel: Cancel
+    edit: Edit
+    delete: Delete
+  admin:
+    nav:
+      label: Admin sections
+      overview: Overview
+      users: Users
+      audit: Audit log
+    attention_callout:
+      one: "1 failed or blocked event in the last 7 days."
+      other: "%{count} failed or blocked events in the last 7 days."
+    attention_review: Review
+    admin_badge: Admin
+    all_clear: No failed or blocked events in the last 7 days.
+    stats:
+      users: Users
+      new_users:
+        one: 1 new in 30 days
+        other: "%{count} new in 30 days"
+      active: Active users
+      active_hint: Signed in within 7 days
+      transactions: Transactions
+      transactions_hint: Recorded in 30 days
+      audit_today: Audit today
+      audit_today_hint: Events, incl. page views
+      suspended: Suspended
+      suspended_hint: Blocked from signing in
+      admins: Administrators
+      admins_hint: Database role or allowlist
+    recent_activity: Recent activity
+    recent_activity_hint: Sign-ins, account and admin changes. Page views are left out.
+    eyebrow: Sumvon operations
+    title: Admin dashboard
+    description: A private operational view of users, account safety and audit activity.
+    administrators: Administrators
+    recent_users: Recent users
+    user: User
+    country: Country
+    joined: Joined
+    users_eyebrow: Customer operations
+    users_title: Users
+    back: Back
+    search: Search users
+    search_placeholder: Name or email
+    role_filter: Role
+    all_roles: All roles
+    open: Open
+    no_users: No users match these filters.
+    view_all_users: View all users
+    user_detail: User detail
+    back_users: Back to users
+    accounts_count: Accounts
+    transactions_count: Transactions
+    last_active: Last active
+    never: Never
+    account_profile: Account profile
+    currency: Currency
+    timezone: Time zone
+    account_status: Account status
+    all_account_statuses: All accounts
+    active_only: Active
+    suspended_only: Suspended
+    active: Active
+    suspended: Suspended
+    edit_profile: Edit profile
+    edit:
+      title: Edit profile
+      description: Only safe profile fields can be changed here. Email, password, and admin role are managed separately.
+      saved: Profile updated.
+    role:
+      title: Admin role
+      source_database: Database role
+      source_environment: Environment allowlist
+      source_both: Database role + environment allowlist
+      source_none: Not an admin
+      source_environment_help: This user's admin access is granted by the ADMIN_EMAILS environment variable. It cannot be revoked from this dashboard — update the Railway environment variable instead.
+      source_database_help: This user's admin access is granted by the database role and can be revoked here.
+      grant: Grant admin access
+      revoke: Revoke admin access
+      granted: Admin access granted.
+      revoked: Admin access revoked.
+      env_protected: This user's admin access comes from the environment allowlist and can't be revoked here. Update ADMIN_EMAILS in Railway instead.
+      last_admin: Sumvon must always have at least one effective super admin. Grant admin to another user before revoking this one.
+      confirm_grant: Grant admin access to this user?
+      confirm_revoke: Revoke admin access from this user?
+    suspension:
+      title: Account access
+      suspend: Suspend account
+      reactivate: Reactivate account
+      suspended: Account suspended. All active sessions were signed out.
+      reactivated: Account reactivated. The user can sign in again.
+      suspended_note: This account is suspended. The user cannot sign in and existing sessions have been signed out.
+      confirm_suspend: Suspend this account? The user will be signed out everywhere and unable to sign back in until reactivated.
+      confirm_reactivate: Reactivate this account and allow sign-in again?
+      self_blocked: You cannot suspend your own account while using it as an administrator.
+      last_admin: Sumvon must always have at least one active super admin. Grant access to another user before suspending this account.
+    sessions:
+      title: Active sessions
+      count:
+        one: 1 active session
+        other: "%{count} active sessions"
+      revoke: Sign out everywhere
+      revoked: All sessions for this user were signed out.
+      confirm_revoke: Sign this user out of every device?
+      none: No active sessions.
+    password_reset:
+      title: Password
+      send: Send password reset email
+      sent: A password reset email was sent to the user.
+      confirm_send: Send this user a password reset email?
+      note: Sumvon never displays or recovers passwords. Use a reset email instead.
+    delete:
+      title: Delete user
+      eyebrow: Irreversible destructive action
+      warning: This permanently deletes the account and every dependent record — accounts, transactions, budgets, and sessions. This cannot be undone.
+      confirm_label: "Type the user's email address to confirm: %{email}"
+      confirm_placeholder: Confirm email address
+      confirm_button: Permanently delete this user
+      cancel: Cancel
+      done: User permanently deleted.
+      self_blocked: You cannot delete your own account while signed in as it.
+      last_admin: Sumvon must always have at least one effective super admin. This user can't be deleted.
+      confirmation_mismatch: The confirmation email address didn't match. Nothing was deleted.
+      danger_zone: Danger zone
+      go_to_confirmation: Delete user…
+    audit:
+      eyebrow: Privacy-safe operations trail
+      title: Audit log
+      description: Security and admin lifecycle events without transaction descriptions, balances, passwords or tokens.
+      today_count:
+        one: 1 event today
+        other: "%{count} events today"
+      view_all: View full audit log
+      user_history: User audit history
+      user_history_help: Authentication and admin lifecycle events connected to this account.
+      action: Action
+      all_actions: All actions
+      source: Source
+      all_sources: All sources
+      outcome: Outcome
+      all_outcomes: All outcomes
+      period: Period
+      one_day: Last 24 hours
+      seven_days: Last 7 days
+      thirty_days: Last 30 days
+      ninety_days: Last 90 days
+      all_time: All time
+      when: Time
+      event: Event
+      system: System
+      empty: No audit events match these filters.
+      self: self
+      people: People
+      hide_views: Hide admin page views
+      attention: Needs attention
+      matching:
+        one: 1 event
+        other: "%{count} events"
+      clear_filters: Clear filters
+      categories:
+        auth: Sign-in
+        password: Passwords
+        user: Accounts
+        admin: Admin
+      outcomes:
+        success: Success
+        failure: Failed
+        blocked: Blocked
+      actions:
+        user_registered: Account created
+        auth_signed_in: Signed in
+        auth_sign_in_failed: Sign-in failed
+        auth_signed_out: Signed out
+        password_reset_requested: Password reset requested
+        password_changed: Password changed
+        admin_access_blocked: Admin access blocked
+        admin_dashboard_viewed: Viewed admin dashboard
+        admin_users_viewed: Viewed user list
+        admin_user_viewed: Viewed a user
+        admin_audit_viewed: Viewed audit log
+        admin_user_edit_viewed: Opened user editor
+        admin_user_updated: User profile updated
+        admin_role_granted: Admin role granted
+        admin_role_revoked: Admin role revoked
+        admin_role_change_blocked: Admin role change blocked
+        admin_user_suspended: User suspended
+        admin_user_reactivated: User reactivated
+        admin_sessions_revoked: Sessions signed out
+        admin_user_suspension_blocked: Suspension blocked
+        admin_password_reset_initiated: Password reset sent by admin
+        admin_user_delete_viewed: Opened account deletion
+        admin_user_delete_blocked: Account deletion blocked
+        admin_user_deleted: Account deleted
+  pwa:
+    offline_short: You're offline. Changes cannot be saved.
+    connection_failed: We couldn't reach Sumvon. Your change was not confirmed.
+    retry: Retry
+    update_ready: An update is ready. Refresh when convenient.
+    refresh: Refresh
+    mobile_app: Mobile app
+    install_description: Install Sumvon for faster home-screen access and an app-like experience.
+    install: Install app
+    install_help: How to install
+    check_update: Check for updates
+    checking_update: Checking for updates…
+    up_to_date: Sumvon is up to date.
+    update_installing: An update was found and is being prepared.
+    update_check_failed: We couldn't check for updates. Check your connection and try again.
+    update_unsupported: Automatic update checks aren't available in this browser.
+    ios_title: Install on iPhone or iPad
+    ios_share: Open the Share menu in Safari.
+    ios_home: Choose “Add to Home Screen.”
+    ios_confirm: Confirm the name and tap Add.
+    browser_install_title: Install from your browser
+    browser_install_body: Open your browser menu and choose Install app or Add to Home Screen. Availability depends on your browser and device.
+    installed: Sumvon is running as an installed app.
+    online_required: Internet access is required for current financial data and all saves. Installed does not mean fully offline.
+    version: "App version %{version}"
+    draft_found: Unsaved transaction draft found.
+    continue_draft: Continue
+    discard_draft: Discard
+    saving: Saving…

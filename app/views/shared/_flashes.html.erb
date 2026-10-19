@@ -1,0 +1,8 @@
+<div aria-live="polite">
+  <% flash.each do |type, message| %>
+    <div class="mb-5 flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm font-medium <%= type.to_s == 'alert' ? 'border-rose-200 bg-rose-50 text-rose-900' : 'border-emerald-200 bg-brand-tint text-brand' %>">
+      <%= heroicon(type.to_s == "alert" ? :exclamation_triangle : :check_circle, variant: :solid, class: "size-5 shrink-0 #{type.to_s == 'alert' ? 'text-rose-600' : 'text-brand'}") %>
+      <span><%= message %></span>
+    </div>
+  <% end %>
+</div>

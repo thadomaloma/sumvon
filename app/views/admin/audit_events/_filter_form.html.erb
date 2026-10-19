@@ -1,0 +1,27 @@
+<%# locals: (form_class:, prefix:) %>
+<%= form_with url: admin_audit_events_path, method: :get, class: form_class do |form| %>
+  <% if params[:user_id].present? %><%= hidden_field_tag :user_id, params[:user_id], id: "#{prefix}-user" %><% end %>
+  <div class="col-span-2 lg:col-span-1">
+    <%= label_tag "#{prefix}-event", t("admin.audit.action"), class: "field-label" %>
+    <%= select_tag :event, grouped_options_for_select(audit_action_options, params[:event]), include_blank: t("admin.audit.all_actions"), id: "#{prefix}-event", class: "field" %>
+  </div>
+  <div>
+    <%= label_tag "#{prefix}-outcome", t("admin.audit.outcome"), class: "field-label" %>
+    <%= select_tag :outcome, options_for_select([ [ t("admin.audit.attention"), "attention" ] ] + AuditEvent::OUTCOMES.map { |outcome| [ t("admin.audit.outcomes.#{outcome}"), outcome ] }, params[:outcome]), include_blank: t("admin.audit.all_outcomes"), id: "#{prefix}-outcome", class: "field" %>
+  </div>
+  <div>
+    <%= label_tag "#{prefix}-period", t("admin.audit.period"), class: "field-label" %>
+    <%= select_tag :period, options_for_select([ [ t("admin.audit.one_day"), 1 ], [ t("admin.audit.seven_days"), 7 ], [ t("admin.audit.thirty_days"), 30 ], [ t("admin.audit.ninety_days"), 90 ] ], params[:period]), include_blank: t("admin.audit.all_time"), id: "#{prefix}-period", class: "field" %>
+  </div>
+  <div>
+    <%= label_tag "#{prefix}-source", t("admin.audit.source"), class: "field-label" %>
+    <%= select_tag :source, options_for_select(AuditEvent::SOURCES.map { |source| [ source.humanize, source ] }, params[:source]), include_blank: t("admin.audit.all_sources"), id: "#{prefix}-source", class: "field" %>
+  </div>
+  <label class="col-span-2 flex min-h-11 items-center gap-2 text-sm text-ink-soft lg:col-span-1 lg:whitespace-nowrap">
+    <%= check_box_tag :hide_views, "1", params[:hide_views] == "1", id: "#{prefix}-hide-views", class: "size-4 rounded border-line-strong accent-[var(--color-brand)]" %>
+    <%= t("admin.audit.hide_views") %>
+  </label>
+  <div class="col-span-2 lg:col-span-5 lg:flex lg:justify-end">
+    <%= button_tag type: "submit", name: nil, class: "btn-primary w-full gap-2 lg:w-auto" do %><%= heroicon :funnel, class: "size-4" %><%= t("filters.apply") %><% end %>
+  </div>
+<% end %>
