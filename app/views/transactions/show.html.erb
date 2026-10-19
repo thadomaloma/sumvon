@@ -1,0 +1,14 @@
+<div class="mx-auto max-w-xl">
+  <%= link_to transactions_path, class: "inline-flex items-center gap-1.5 text-sm font-semibold text-brand" do %><%= heroicon :arrow_left, class: "size-4" %><%= t('transactions.title') %><% end %>
+  <section class="panel mt-4 p-6 text-center">
+    <p class="text-sm font-medium capitalize text-muted"><%= @transaction.kind %></p>
+    <p class="mt-2 text-4xl font-semibold tabular-nums"><%= transaction_sign(@transaction) %><%= format_money(@transaction.amount_minor, @transaction.currency) %></p>
+    <p class="mt-3 font-medium"><%= @transaction.transfer? ? t("transactions.transfer") : @transaction.category.name %></p>
+    <p class="mt-1 text-sm text-muted"><%= @transaction.financial_account.name %><% if @transaction.transfer? %> → <%= @transaction.transfer_account.name %><% end %> · <%= l(@transaction.transaction_date, format: :long) %></p>
+    <% if @transaction.description.present? %><p class="mt-5 rounded-xl bg-surface-muted p-3 text-left text-sm text-ink-soft"><%= @transaction.description %></p><% end %>
+    <div class="mt-6 flex justify-center gap-3">
+      <%= link_to edit_transaction_path(@transaction), class: "btn-primary inline-flex items-center gap-2" do %><%= heroicon :pencil_square, class: "size-5" %><%= t("forms.edit") %><% end %>
+      <%= button_to @transaction, method: :delete, class: "btn-secondary inline-flex items-center gap-2", form: { data: { turbo_confirm: t("transactions.delete_confirm") } } do %><%= heroicon :trash, class: "size-5" %><%= t("forms.delete") %><% end %>
+    </div>
+  </section>
+</div>

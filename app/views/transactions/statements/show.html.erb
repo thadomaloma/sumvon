@@ -1,0 +1,94 @@
+<% content_for :title, "#{t('transactions.statement.title')} · Sumvon" %>
+
+<div class="statement-workspace" data-controller="print">
+  <div class="statement-toolbar" role="region" aria-label="<%= t('transactions.statement.print') %>">
+    <div>
+      <%= link_to transactions_path(request.query_parameters), class: "btn-secondary inline-flex items-center gap-2" do %><%= heroicon :arrow_left, class: "size-5" %><%= t('transactions.statement.back') %><% end %>
+      <p><%= t("transactions.statement.print_help") %></p>
+    </div>
+    <button type="button" class="btn-primary inline-flex items-center gap-2" data-action="print#print"><%= heroicon :printer, class: "size-5" %><%= t("transactions.statement.print") %></button>
+  </div>
+
+  <article class="statement-sheet">
+    <header class="statement-heading">
+      <div class="statement-brand">
+        <span>S</span>
+        <div><strong>Sumvon</strong><small>Know where your money goes</small></div>
+      </div>
+      <div class="statement-title-block">
+        <p><%= t("transactions.statement.title") %></p>
+        <h1><%= @period_label %></h1>
+        <small><%= t("transactions.statement.generated", date: l(Time.zone.today, format: :long)) %></small>
+      </div>
+    </header>
+
+    <% if @filter_labels.any? %>
+      <div class="statement-filters">
+        <% @filter_labels.each do |label| %><span><%= label %></span><% end %>
+      </div>
+    <% end %>
+
+    <% if @totals.any? %>
+      <section class="statement-totals" aria-label="Summary">
+        <% @totals.each do |currency, totals| %>
+          <div class="statement-currency-row">
+            <div class="statement-currency-summary">
+              <p><%= currency %></p>
+              <dl>
+                <div><dt><%= t("transactions.statement.income") %></dt><dd class="positive"><%= format_money(totals[:income], currency) %></dd></div>
+                <div><dt><%= t("transactions.statement.expenses") %></dt><dd><%= format_money(totals[:expenses], currency) %></dd></div>
+                <div><dt><%= t("transactions.statement.net") %></dt><dd><%= format_money(totals[:income] - totals[:expenses], currency) %></dd></div>
+              </dl>
+              <% if totals[:upcoming_count].positive? %>
+                <p class="statement-upcoming-note"><%= t("transactions.statement.upcoming_note", count: totals[:upcoming_count], amounts: upcoming_amounts(totals[:upcoming_income], totals[:upcoming_expenses], currency)) %></p>
+              <% end %>
+            </div>
+            <% if (breakdown = totals[:breakdown]) %>
+              <figure class="statement-breakdown" data-breakdown-kind="<%= breakdown[:kind] %>">
+                <figcaption><%= t("transactions.statement.breakdown_#{breakdown[:kind]}") %> · <%= currency %></figcaption>
+                <ol>
+                  <% breakdown[:rows].each do |row| %>
+                    <li class="<%= 'is-other' if row[:other] %>" title="<%= row[:name] %>: <%= format_money(row[:amount_minor], currency) %> (<%= row[:percentage] %>%)">
+                      <span class="statement-breakdown-name"><%= row[:name] %></span>
+                      <span class="statement-breakdown-track" aria-hidden="true"><span class="statement-breakdown-bar" style="width: <%= progress_width(row[:percentage]) %>%"></span></span>
+                      <span class="statement-breakdown-value"><%= format_money(row[:amount_minor], currency) %> <small><%= row[:percentage].round %>%</small></span>
+                    </li>
+                  <% end %>
+                </ol>
+              </figure>
+            <% end %>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
+
+    <section class="statement-table-wrap">
+      <table class="statement-table">
+        <thead><tr>
+          <th><%= t("transactions.statement.date") %></th>
+          <th><%= t("transactions.statement.details") %></th>
+          <th><%= t("transactions.statement.account") %></th>
+          <th><%= t("transactions.statement.type") %></th>
+          <th><%= t("transactions.statement.amount") %></th>
+        </tr></thead>
+        <tbody>
+          <% @transactions.each do |transaction| %>
+            <tr>
+              <td><%= l(transaction.transaction_date, format: "%b %d, %Y") %><% if transaction.transaction_date > Date.current %><small class="statement-upcoming-tag"><%= t("transactions.upcoming") %></small><% end %></td>
+              <td><strong><%= transaction.category&.name || transaction.kind.humanize %></strong><% if transaction.description.present? %><small><%= transaction.description %></small><% end %></td>
+              <td><%= transaction.financial_account.name %><% if transaction.transfer_account %><small>→ <%= transaction.transfer_account.name %></small><% end %></td>
+              <td><span class="statement-kind statement-kind-<%= transaction.kind %>"><%= transaction.kind.humanize %></span></td>
+              <td class="statement-amount <%= 'positive' if transaction.income? %>"><%= transaction.transfer? ? "" : transaction_sign(transaction) %><%= format_money(transaction.amount_minor, transaction.currency) %></td>
+            </tr>
+          <% end %>
+          <% if @transactions.empty? %><tr><td colspan="5" class="statement-empty"><%= t("transactions.statement.no_transactions") %></td></tr><% end %>
+        </tbody>
+      </table>
+    </section>
+
+    <footer class="statement-footer">
+      <div><strong><%= Current.user.display_name.presence || Current.user.email_address %></strong><small><%= Current.user.email_address %></small></div>
+      <p><%= t("transactions.statement.confidential") %> · Sumvon</p>
+    </footer>
+  </article>
+</div>

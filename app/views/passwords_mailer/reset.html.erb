@@ -1,0 +1,9 @@
+<div style="margin:0 auto;max-width:560px;padding:32px;font-family:Arial,sans-serif;color:#18231f">
+  <div style="font-size:20px;font-weight:700;color:#102b26">Sumvon</div>
+  <p style="margin:28px 0 0;color:#b79255;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Account security</p>
+  <p style="margin:8px 0 0;font-size:28px;font-weight:700;line-height:1.25"><%= t("passwords.mailer.heading") %></p>
+  <p style="margin:16px 0 24px;color:#52605a;line-height:1.6"><%= t("passwords.mailer.body") %></p>
+  <p><%= link_to t("passwords.mailer.action"), edit_password_url(@user.password_reset_token), style: "display:inline-block;border-radius:12px;background:#102b26;color:#fff;padding:13px 20px;text-decoration:none;font-weight:700" %></p>
+  <p style="margin:24px 0 0;color:#52605a;font-size:13px;line-height:1.6"><%= t("passwords.mailer.expiry", duration: distance_of_time_in_words(0, @user.password_reset_token_expires_in)) %></p>
+  <p style="margin:8px 0 0;color:#7a847f;font-size:13px;line-height:1.6"><%= t("passwords.mailer.ignore") %></p>
+</div>

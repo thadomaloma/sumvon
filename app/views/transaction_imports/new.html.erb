@@ -1,0 +1,65 @@
+<div class="mx-auto max-w-2xl">
+  <p class="page-eyebrow"><%= t("imports.eyebrow") %></p>
+  <h1 class="page-title mt-1"><%= t("imports.title") %></h1>
+
+  <div class="panel mt-6 p-5 sm:p-7">
+    <p class="text-sm leading-6 text-muted"><%= t("imports.help") %></p>
+
+    <% if @errors.present? %>
+      <div class="mt-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900" role="alert">
+        <p class="font-semibold"><%= t("imports.partial", count: @imported_count) %></p>
+        <ul class="mt-2 list-disc pl-5">
+          <% @errors.first(20).each do |error| %>
+            <li><%= error %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with url: transaction_import_path, multipart: true, class: "mt-5 space-y-4" do |form| %>
+      <div>
+        <%= form.label :source_format, t("imports.source"), class: "field-label" %>
+        <%= form.select :source_format, [
+          [t("imports.sources.sumvon"), "sumvon"],
+          [t("imports.sources.auto"), "auto"],
+          [t("imports.sources.japan_post"), "japan_post"],
+          [t("imports.sources.mufg"), "mufg"],
+          [t("imports.sources.mizuho"), "mizuho"],
+          [t("imports.sources.chiba_bank"), "chiba_bank"],
+          [t("imports.sources.smbc"), "smbc"],
+          [t("imports.sources.chiba_kogyo"), "chiba_kogyo"]
+        ], { selected: params[:source_format] || "sumvon" }, class: "field" %>
+      </div>
+
+      <div class="rounded-xl bg-surface-muted p-4">
+        <p class="text-sm font-semibold text-ink"><%= t("imports.bank_defaults") %></p>
+        <p class="mt-1 text-xs leading-5 text-muted"><%= t("imports.bank_defaults_help") %></p>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <%= form.label :financial_account_id, t("filters.account"), class: "field-label" %>
+            <%= form.collection_select :financial_account_id, @accounts, :id, :name,
+              { include_blank: t("transactions.choose_account"), selected: params[:financial_account_id] }, class: "field" %>
+          </div>
+          <div>
+            <%= form.label :income_category_id, t("imports.income_category"), class: "field-label" %>
+            <%= form.collection_select :income_category_id, @income_categories, :id, :name,
+              { include_blank: t("transactions.choose_category"), selected: params[:income_category_id] }, class: "field" %>
+          </div>
+          <div>
+            <%= form.label :expense_category_id, t("imports.expense_category"), class: "field-label" %>
+            <%= form.collection_select :expense_category_id, @expense_categories, :id, :name,
+              { include_blank: t("transactions.choose_category"), selected: params[:expense_category_id] }, class: "field" %>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <%= form.label :file, t("imports.file"), class: "field-label" %>
+        <%= form.file_field :file, accept: ".csv,.pdf,text/csv,application/pdf", required: true, class: "field" %>
+        <p class="mt-1 text-xs leading-5 text-muted"><%= t("imports.file_help") %></p>
+      </div>
+
+      <%= form.submit t("imports.submit"), class: "btn-primary" %>
+    <% end %>
+  </div>
+</div>

@@ -1,0 +1,162 @@
+<% content_for :title, "#{t('nav.home')} · Sumvon" %>
+<section class="mb-5 sm:mb-7">
+  <p class="page-eyebrow"><%= l(Date.current, format: "%B %Y") %></p>
+  <h1 class="page-title mt-1"><%= t("dashboard.greeting", name: Current.user.display_name.split.first) %></h1>
+</section>
+
+<% if @accounts.empty? %>
+  <section class="panel px-5 py-10 text-center sm:px-6 sm:py-14">
+    <div class="mx-auto grid size-12 place-items-center rounded-2xl bg-brand-tint text-brand sm:size-14"><%= heroicon :wallet, class: "size-6 sm:size-7" %></div>
+    <h2 class="mt-4 text-lg font-semibold text-ink sm:text-xl"><%= t("dashboard.empty_title") %></h2>
+    <p class="mx-auto mt-1.5 max-w-md text-sm leading-6 text-muted sm:mt-2 sm:text-base"><%= t("dashboard.empty_body") %></p>
+    <%= link_to t("accounts.add"), new_financial_account_path, class: "btn-primary mt-6 w-full sm:w-auto" %>
+  </section>
+<% else %>
+  <% previous = @summary.previous %>
+  <% comparison = @summary.previous_comparison %>
+  <% previous_month = l(previous.month, format: "%b") %>
+  <% upcoming = @summary.upcoming %>
+  <% upcoming_note = t("dashboard.upcoming_note", amounts: upcoming_amounts(upcoming[:income_minor], upcoming[:expense_minor], @summary.currency)) if upcoming[:count].positive? %>
+  <div class="grid gap-4 md:grid-cols-5">
+    <section class="premium-balance-card flex min-h-48 flex-col overflow-hidden rounded-2xl p-5 sm:min-h-56 sm:rounded-3xl sm:p-7 md:col-span-3" data-position-currency="<%= @position_currency %>">
+      <div class="flex items-center justify-between gap-3">
+        <p class="text-sm font-medium text-white/75"><%= t("dashboard.total_balance") %></p>
+        <%= link_to financial_accounts_path, class: "hero-link md:hidden" do %><%= t("accounts.title") %><%= heroicon :arrow_right, class: "size-3.5" %><% end %>
+      </div>
+      <p class="financial-position-amount mt-3 text-[2.25rem] font-semibold leading-none tracking-[-0.035em] sm:mt-4 sm:text-5xl">
+        <%= money_tag(@position_total, @position_currency, show_code: true, class: "money-display") %>
+      </p>
+      <p class="mt-3 text-xs leading-5 text-white/65 sm:text-sm"><%= t("dashboard.position_label", currency: @position_currency) %></p>
+      <% hero_accounts = @net_worth.account_rows.reject { |row| row[:account].archived? || row[:account].currency != @position_currency }.max_by(3) { |row| row[:balance_minor].abs } %>
+      <% if hero_accounts.any? %>
+        <div class="mt-auto grid grid-cols-2 gap-2 pt-6 sm:grid-cols-3">
+          <% hero_accounts.each_with_index do |row, index| %>
+            <%= link_to financial_account_path(row[:account]), class: ["hero-account min-w-0 rounded-xl px-3 py-2.5", ("hidden sm:block" if index == 2)] do %>
+              <p class="truncate text-[0.6875rem] font-medium text-white/60"><%= row[:account].name %></p>
+              <p class="mt-0.5 truncate text-sm font-semibold text-white"><%= money_tag(row[:balance_minor], row[:account].currency) %></p>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </section>
+
+    <section class="panel desktop-month-summary hidden p-5 md:col-span-2 md:block sm:p-6" data-summary-layout="desktop">
+      <div class="flex items-baseline justify-between gap-4">
+        <h2 class="section-title"><%= t("dashboard.monthly_snapshot") %></h2>
+        <p class="text-xs font-medium text-subtle"><%= @summary.currency %> · <%= l(Date.current, format: "%B") %></p>
+      </div>
+      <div class="mt-4 space-y-4">
+        <div class="flex items-center gap-3" data-metric="income">
+          <span class="stat-icon tone-green"><%= heroicon :arrow_trending_up, class: "size-4" %></span>
+          <div class="min-w-0 flex-1">
+            <p class="section-label"><%= t("dashboard.income") %></p>
+            <p class="mt-0.5 flex items-center gap-2"><%= money_tag(@summary.income_minor, @summary.currency, sign: "+", class: "text-lg font-semibold text-ink") %><%= delta_badge(comparison&.dig(:income_difference_minor), previous.income_minor) %></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3" data-metric="expenses">
+          <span class="stat-icon tone-orange"><%= heroicon :arrow_trending_down, class: "size-4" %></span>
+          <div class="min-w-0 flex-1">
+            <p class="section-label"><%= t("dashboard.expenses") %></p>
+            <p class="mt-0.5 flex items-center gap-2"><%= signed_money_tag(-@summary.expense_minor, @summary.currency, class: "text-lg font-semibold text-ink") %><%= delta_badge(comparison&.dig(:expense_difference_minor), previous.expense_minor, good_when: :down) %></p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 border-t border-line pt-4" data-metric="savings">
+          <span class="stat-icon tone-amber"><%= heroicon :banknotes, class: "size-4" %></span>
+          <div class="min-w-0 flex-1">
+            <p class="section-label"><%= t("dashboard.savings") %></p>
+            <p class="mt-0.5 flex items-center gap-2"><%= signed_money_tag(@summary.savings_amount_minor, @summary.currency, class: "text-lg font-semibold #{@summary.savings_amount_minor.negative? ? 'text-negative' : 'text-positive'}") %></p>
+            <% if @summary.savings_rate %><p class="mt-0.5 text-xs text-subtle"><%= t("dashboard.savings_rate", rate: @summary.savings_rate.round) %></p><% end %>
+          </div>
+        </div>
+      </div>
+      <% if comparison %><p class="mt-4 text-[0.6875rem] text-subtle"><%= t("dashboard.vs_month", month: previous_month) %></p><% end %>
+      <% if upcoming_note %><p class="upcoming-note mt-3" data-upcoming-note><%= heroicon :clock, class: "size-4 shrink-0" %><span><%= upcoming_note %></span></p><% end %>
+    </section>
+  </div>
+
+  <section class="mt-3 grid grid-cols-3 gap-2 md:hidden" data-summary-layout="mobile" aria-label="<%= l(Date.current, format: '%B') %> financial summary">
+    <div class="stat-tile min-w-0 p-3" data-metric="income">
+      <p class="truncate text-[0.6875rem] font-medium text-muted"><%= t("dashboard.income_short") %></p>
+      <p class="mt-1 truncate text-[clamp(.78rem,3.6vw,.95rem)] font-semibold"><%= money_tag(@summary.income_minor, @summary.currency, class: "text-ink") %></p>
+      <div class="mt-1.5 h-5"><%= delta_badge(comparison&.dig(:income_difference_minor), previous.income_minor) %></div>
+    </div>
+    <div class="stat-tile min-w-0 p-3" data-metric="expenses">
+      <p class="truncate text-[0.6875rem] font-medium text-muted"><%= t("dashboard.expenses_short") %></p>
+      <p class="mt-1 truncate text-[clamp(.78rem,3.6vw,.95rem)] font-semibold"><%= money_tag(@summary.expense_minor, @summary.currency, class: "text-ink") %></p>
+      <div class="mt-1.5 h-5"><%= delta_badge(comparison&.dig(:expense_difference_minor), previous.expense_minor, good_when: :down) %></div>
+    </div>
+    <div class="stat-tile min-w-0 p-3" data-metric="savings">
+      <p class="truncate text-[0.6875rem] font-medium text-muted"><%= t("dashboard.savings_short") %></p>
+      <p class="mt-1 truncate text-[clamp(.78rem,3.6vw,.95rem)] font-semibold"><%= signed_money_tag(@summary.savings_amount_minor, @summary.currency, class: @summary.savings_amount_minor.negative? ? "text-negative" : "text-positive") %></p>
+      <div class="mt-1.5 h-5"><% if @summary.savings_rate %><span class="delta delta-neutral"><%= @summary.savings_rate.round %>%</span><% end %></div>
+    </div>
+  </section>
+  <% if upcoming_note %><p class="upcoming-note mt-2 md:hidden" data-upcoming-note><%= heroicon :clock, class: "size-4 shrink-0" %><span><%= upcoming_note %></span></p><% end %>
+
+  <div class="mt-4 grid gap-4 lg:grid-cols-5">
+    <div class="lg:col-span-3"><%= render "cash_flow_chart" %></div>
+
+    <section class="panel flex flex-col p-5 sm:p-6 lg:col-span-2">
+      <% if @budget_summary %>
+        <% ring_color = { on_track: "var(--color-brand)", watch: "#c9871f", near_limit: "#d06a1f", over_budget: "var(--color-negative)" }.fetch(@budget_summary.status) %>
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="section-title"><%= t("dashboard.budget_status") %></h2>
+          <%= link_to @budget, class: "link-action shrink-0 text-xs sm:text-sm" do %><%= budget_status_label(@budget_summary.status) %><%= heroicon :arrow_right, class: "size-3.5" %><% end %>
+        </div>
+        <div class="mt-5 flex items-center gap-5">
+          <div class="budget-ring" style="--ring-value: <%= progress_width(@budget_summary.used_percentage) %>; --ring-color: <%= ring_color %>" role="progressbar" aria-valuenow="<%= @budget_summary.used_percentage.round %>" aria-valuemin="0" aria-valuemax="100" aria-label="<%= t('budgets.used_label', percentage: @budget_summary.used_percentage) %>">
+            <div class="text-center">
+              <p class="text-2xl font-semibold tracking-tight text-ink tabular-nums"><%= @budget_summary.used_percentage.round %>%</p>
+              <p class="text-[0.6875rem] font-medium text-subtle"><%= t("dashboard.budget_used") %></p>
+            </div>
+          </div>
+          <div class="min-w-0">
+            <p class="text-xl font-semibold tracking-tight"><%= money_tag(@budget_summary.spent_amount_minor, @budget_summary.currency, class: "text-ink") %></p>
+            <p class="mt-0.5 text-sm text-muted"><%= t("dashboard.budget_of", amount: format_money(@budget_summary.planned_amount_minor, @budget_summary.currency)) %></p>
+            <p class="mt-3 text-sm font-medium text-ink-soft"><%= t("dashboard.budget_remaining", amount: format_money(@budget_summary.remaining_amount_minor, @budget_summary.currency)) %></p>
+          </div>
+        </div>
+        <% top_categories = @budget_summary.category_progress.first(3) %>
+        <% if top_categories.any? %>
+          <ul class="mt-6 space-y-3 border-t border-line pt-4">
+            <% top_categories.each do |row| %>
+              <li>
+                <div class="flex items-baseline justify-between gap-3 text-[0.8125rem]">
+                  <span class="truncate font-medium text-ink-soft"><%= row[:category].name %></span>
+                  <span class="shrink-0 tabular-nums text-muted"><%= format_money(row[:spent_amount_minor], @budget_summary.currency) %> / <%= format_money(row[:planned_amount_minor], @budget_summary.currency) %></span>
+                </div>
+                <div class="mt-1.5 h-1.5 overflow-hidden rounded-full bg-canvas" aria-hidden="true">
+                  <div class="h-full rounded-full <%= row[:used_percentage] >= 100 ? 'bg-negative' : (row[:used_percentage] >= 90 ? 'bg-[#d06a1f]' : 'bg-brand') %>" style="width: <%= progress_width(row[:used_percentage]) %>%"></div>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        <% end %>
+      <% else %>
+        <div class="flex flex-1 flex-col justify-center">
+          <span class="stat-icon size-10 bg-brand-tint text-brand"><%= heroicon :chart_pie, class: "size-5" %></span>
+          <h2 class="mt-4 section-title"><%= t("dashboard.no_budget_title") %></h2>
+          <p class="mt-1 text-sm leading-6 text-muted"><%= t("dashboard.no_budget_body") %></p>
+          <%= link_to t("budgets.create"), new_budget_path(month: Date.current.strftime("%Y-%m")), class: "btn-secondary mt-5 w-full sm:w-auto sm:self-start" %>
+        </div>
+      <% end %>
+    </section>
+  </div>
+
+  <section class="panel mt-4 px-4 pb-2 sm:px-6">
+    <div class="flex items-center justify-between py-4 sm:py-5">
+      <h2 class="section-title"><%= t("dashboard.recent") %></h2>
+      <%= link_to transactions_path, class: "link-action" do %><%= t("dashboard.view_all") %><%= heroicon :arrow_right, class: "size-3.5" %><% end %>
+    </div>
+    <% if @recent_transactions.any? %>
+      <div class="md:hidden" data-recent-layout="mobile"><%= render partial: "shared/transaction_row", collection: @recent_transactions.first(4), as: :transaction, locals: { compact: true } %></div>
+      <div class="hidden md:block" data-recent-layout="desktop"><%= render partial: "shared/transaction_row", collection: @recent_transactions, as: :transaction %></div>
+    <% else %>
+      <div class="pb-8 pt-4 text-center">
+        <p class="font-medium text-ink"><%= t("transactions.empty_title") %></p>
+        <p class="mt-1 text-sm text-muted"><%= t("transactions.empty_body") %></p>
+        <%= link_to t("transactions.add"), new_transaction_path, class: "btn-primary mt-5" %>
+      </div>
+    <% end %>
+  </section>
+<% end %>

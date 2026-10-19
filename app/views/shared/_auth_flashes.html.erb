@@ -1,0 +1,15 @@
+<% content_for :inline_flashes, true %>
+<% if flash[:alert].present? || flash[:notice].present? %>
+  <div class="mt-6 space-y-3">
+    <% if flash[:alert].present? %>
+      <div id="auth-alert" class="auth-alert auth-alert-error" role="alert">
+        <%= heroicon :exclamation_triangle, variant: :solid, class: "size-5 shrink-0" %><span><%= flash[:alert] %></span>
+      </div>
+    <% end %>
+    <% if flash[:notice].present? %>
+      <div id="auth-notice" class="auth-alert auth-alert-success" role="status">
+        <%= heroicon :check_circle, variant: :solid, class: "size-5 shrink-0" %><span><%= flash[:notice] %></span>
+      </div>
+    <% end %>
+  </div>
+<% end %>

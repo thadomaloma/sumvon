@@ -1,0 +1,22 @@
+<%# locals: (events:, show_day: false) %>
+<ul class="divide-y divide-line">
+  <% events.each do |event| %>
+    <li class="flex items-start gap-3 px-4 py-3.5 sm:px-6">
+      <%= audit_category_icon(event) %>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-start justify-between gap-3">
+          <p class="text-sm font-semibold leading-5 text-ink"><%= audit_action_label(event.action) %></p>
+          <time class="shrink-0 text-xs tabular-nums text-subtle" datetime="<%= event.created_at.iso8601 %>" title="<%= l(event.created_at, format: :long) %>"><%= show_day ? l(event.created_at, format: :short) : l(event.created_at, format: "%H:%M") %></time>
+        </div>
+        <p class="mt-0.5 truncate text-[0.8125rem] text-muted"><%= audit_people(event) %></p>
+        <% if event.needs_attention? || event.source != "web" || event.metadata.present? %>
+          <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <% if event.needs_attention? %><%= audit_outcome_badge(event.outcome) %><% end %>
+            <% if event.source != "web" %><span class="meta-chip"><%= event.source.humanize %></span><% end %>
+            <%= audit_metadata_chips(event) %>
+          </div>
+        <% end %>
+      </div>
+    </li>
+  <% end %>
+</ul>

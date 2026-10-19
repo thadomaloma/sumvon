@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Sumvon">
+  <defs>
+    <linearGradient id="bg" x1="60" y1="20" x2="452" y2="492" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1d4a40"/>
+      <stop offset="0.55" stop-color="#123b32"/>
+      <stop offset="1" stop-color="#0a1e1a"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="150" y1="130" x2="362" y2="382" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f6e8c9"/>
+      <stop offset="0.5" stop-color="#cda869"/>
+      <stop offset="1" stop-color="#9a7640"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="8" y="8" width="496" height="496" rx="104" fill="none" stroke="url(#gold)" stroke-opacity="0.35" stroke-width="3"/>
+
+  <circle cx="256" cy="256" r="148" fill="none" stroke="url(#gold)" stroke-width="14" opacity="0.95"/>
+
+  <path d="M326,196 C326,164 296,146 258,146 C210,146 182,168 182,198 C182,228 208,240 254,250 C302,260 332,274 332,308 C332,344 300,366 256,366 C214,366 184,346 178,314"
+    fill="none" stroke="url(#gold)" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

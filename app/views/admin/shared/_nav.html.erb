@@ -1,0 +1,7 @@
+<nav class="admin-tabs mt-5" aria-label="<%= t('admin.nav.label') %>">
+  <% [ [ t("admin.nav.overview"), admin_root_path, :presentation_chart_line, controller_name == "dashboard" ],
+       [ t("admin.nav.users"), admin_users_path, :users, controller_path.start_with?("admin/users") ],
+       [ t("admin.nav.audit"), admin_audit_events_path, :shield_check, controller_name == "audit_events" ] ].each do |label, path, icon, active| %>
+    <%= link_to path, class: [ "admin-tab", ("is-active" if active) ], aria: { current: (active ? "page" : nil) } do %><%= heroicon icon, class: "size-4" %><%= label %><% end %>
+  <% end %>
+</nav>

@@ -1,0 +1,72 @@
+<div class="mx-auto max-w-5xl">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div class="min-w-0"><p class="page-eyebrow"><%= t("admin.user_detail") %></p><h1 class="page-title mt-1 truncate"><%= @user.display_name %></h1><p class="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted sm:mt-2 sm:text-sm"><span class="truncate"><%= @user.email_address %></span><%= account_status_badge(@user) %><% if @user.admin_access? %><span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800"><%= admin_source_label(@user) %></span><% end %></p></div>
+    <div class="flex shrink-0 items-center gap-2">
+      <%= link_to admin_users_path, class: "inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-line bg-white px-3 text-xs font-semibold text-ink-soft shadow-sm" do %><%= heroicon :arrow_left, class: "size-4" %><span class="hidden sm:inline"><%= t("admin.back_users") %></span><span class="sm:hidden"><%= t("admin.back") %></span><% end %>
+      <%= link_to t("admin.edit_profile"), edit_admin_user_path(@user), class: "btn-secondary min-h-10 px-3 text-xs sm:text-sm" %>
+    </div>
+  </div>
+
+  <section class="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:gap-4 lg:grid-cols-4">
+    <article class="panel min-w-0 p-4 sm:p-5"><p class="truncate text-[10px] font-bold uppercase tracking-wide text-muted sm:text-xs"><%= t("admin.accounts_count") %></p><p class="mt-2 text-2xl font-semibold"><%= @account_count %></p></article>
+    <article class="panel min-w-0 p-4 sm:p-5"><p class="truncate text-[10px] font-bold uppercase tracking-wide text-muted sm:text-xs"><%= t("admin.transactions_count") %></p><p class="mt-2 text-2xl font-semibold"><%= @transaction_count %></p></article>
+    <article class="panel min-w-0 p-4 sm:p-5"><p class="truncate text-[10px] font-bold uppercase tracking-wide text-muted sm:text-xs"><%= t("admin.sessions.title") %></p><p class="mt-2 text-2xl font-semibold"><%= @session_count %></p></article>
+    <article class="panel min-w-0 p-4 sm:p-5"><p class="truncate text-[10px] font-bold uppercase tracking-wide text-muted sm:text-xs"><%= t("admin.last_active") %></p><p class="mt-2 truncate text-xs font-semibold sm:text-sm"><%= @last_active_at ? l(@last_active_at.to_date, format: :long) : t("admin.never") %></p></article>
+  </section>
+
+  <section class="panel mt-6 p-5 sm:p-7">
+    <p class="page-eyebrow"><%= t("admin.account_profile") %></p>
+    <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2"><div class="flex justify-between gap-4"><dt class="text-muted"><%= t("admin.country") %></dt><dd class="font-semibold"><%= @user.country_code %></dd></div><div class="flex justify-between gap-4"><dt class="text-muted"><%= t("admin.currency") %></dt><dd class="font-semibold"><%= @user.default_currency %></dd></div><div class="flex justify-between gap-4"><dt class="text-muted"><%= t("admin.timezone") %></dt><dd class="font-semibold"><%= @user.timezone %></dd></div><div class="flex justify-between gap-4"><dt class="text-muted"><%= t("admin.joined") %></dt><dd class="font-semibold"><%= l(@user.created_at.to_date, format: :long) %></dd></div></dl>
+  </section>
+
+  <section class="panel mt-6 p-5 sm:p-7">
+    <p class="page-eyebrow"><%= t("admin.role.title") %></p>
+    <p class="mt-2 text-sm text-muted"><%= admin_source_help(@user) || t("admin.role.source_none") %></p>
+    <div class="mt-4 flex flex-wrap gap-3">
+      <% if @user.admin_access? %>
+        <% if @user.env_admin? %>
+          <span class="inline-flex min-h-10 items-center rounded-xl bg-canvas px-3 text-xs font-semibold text-muted"><%= t("admin.role.env_protected") %></span>
+        <% else %>
+          <%= button_to t("admin.role.revoke"), admin_user_admin_role_path(@user), method: :delete, class: "btn-secondary text-rose-700", form: { data: { turbo_confirm: t("admin.role.confirm_revoke") } } %>
+        <% end %>
+      <% else %>
+        <%= button_to t("admin.role.grant"), admin_user_admin_role_path(@user), method: :post, class: "btn-secondary", form: { data: { turbo_confirm: t("admin.role.confirm_grant") } } %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="panel mt-6 p-5 sm:p-7">
+    <div class="grid gap-6 sm:grid-cols-2">
+      <div>
+        <p class="page-eyebrow"><%= t("admin.suspension.title") %></p>
+        <% if @user.suspended? %>
+          <p class="mt-2 text-sm text-muted"><%= t("admin.suspension.suspended_note") %></p>
+          <%= button_to t("admin.suspension.reactivate"), admin_user_suspension_path(@user), method: :delete, class: "btn-primary mt-4", form: { data: { turbo_confirm: t("admin.suspension.confirm_reactivate") } } %>
+        <% else %>
+          <p class="mt-2 text-sm text-muted"><%= t("admin.suspension.confirm_suspend") %></p>
+          <%= button_to t("admin.suspension.suspend"), admin_user_suspension_path(@user), method: :post, class: "btn-secondary mt-4 text-rose-700", form: { data: { turbo_confirm: t("admin.suspension.confirm_suspend") } } %>
+        <% end %>
+      </div>
+      <div>
+        <p class="page-eyebrow"><%= t("admin.sessions.title") %></p>
+        <p class="mt-2 text-sm text-muted"><%= t("admin.sessions.count", count: @session_count) %></p>
+        <% if @session_count.positive? %>
+          <%= button_to t("admin.sessions.revoke"), admin_user_sessions_path(@user), method: :delete, class: "btn-secondary mt-4", form: { data: { turbo_confirm: t("admin.sessions.confirm_revoke") } } %>
+        <% else %>
+          <p class="mt-4 text-xs text-subtle"><%= t("admin.sessions.none") %></p>
+        <% end %>
+        <p class="mt-5 page-eyebrow"><%= t("admin.password_reset.title") %></p>
+        <p class="mt-2 text-xs text-muted"><%= t("admin.password_reset.note") %></p>
+        <%= button_to t("admin.password_reset.send"), admin_user_password_reset_path(@user), method: :post, class: "btn-secondary mt-3", form: { data: { turbo_confirm: t("admin.password_reset.confirm_send") } } %>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel mt-6 overflow-hidden"><div class="flex items-center justify-between border-b border-line p-5 sm:px-7"><div><p class="page-eyebrow"><%= t("admin.audit.user_history") %></p><p class="mt-1 text-xs text-muted"><%= t("admin.audit.user_history_help") %></p></div><%= link_to t("admin.audit.view_all"), admin_audit_events_path(user_id: @user.id), class: "text-sm font-semibold text-brand" %></div><%= render "admin/shared/audit_table", events: @audit_events %></section>
+
+  <section class="panel mt-6 border border-rose-200 p-5 sm:p-7">
+    <p class="page-eyebrow text-rose-700"><%= t("admin.delete.danger_zone") %></p>
+    <p class="mt-2 text-sm text-muted"><%= t("admin.delete.warning") %></p>
+    <%= link_to t("admin.delete.go_to_confirmation"), new_admin_user_deletion_path(@user), class: "btn-secondary mt-4 inline-flex items-center gap-2 text-rose-700" %>
+  </section>
+</div>

@@ -1,0 +1,8 @@
+<% if object.errors.any? %>
+  <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-950" role="alert">
+    <p class="flex items-center gap-2 font-semibold"><%= heroicon :exclamation_triangle, variant: :solid, class: "size-5 shrink-0 text-rose-600" %><%= t("forms.fix_errors") %></p>
+    <ul class="mt-2 list-disc space-y-1 pl-5">
+      <% object.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+    </ul>
+  </div>
+<% end %>

@@ -1,0 +1,75 @@
+<% content_for :title, "#{t('admin.title')} · Sumvon" %>
+<div class="mx-auto max-w-6xl">
+  <div>
+    <p class="page-eyebrow"><%= t("admin.eyebrow") %></p>
+    <h1 class="page-title mt-1"><%= t("admin.title") %></h1>
+    <p class="mt-2 text-sm text-muted"><%= t("admin.description") %></p>
+  </div>
+  <%= render "admin/shared/nav" %>
+
+  <% if @attention_events_7d.positive? %>
+    <div class="admin-callout admin-callout-warn mt-5" role="status" data-attention-callout>
+      <%= heroicon :exclamation_triangle, variant: :solid, class: "size-5 shrink-0" %>
+      <p class="min-w-0 flex-1"><%= t("admin.attention_callout", count: @attention_events_7d) %></p>
+      <%= link_to admin_audit_events_path(outcome: "attention", period: 7), class: "admin-callout-link" do %><%= t("admin.attention_review") %><%= heroicon :arrow_right, class: "size-3.5" %><% end %>
+    </div>
+  <% else %>
+    <div class="admin-callout admin-callout-ok mt-5" role="status"><%= heroicon :check_circle, variant: :solid, class: "size-5 shrink-0" %><p><%= t("admin.all_clear") %></p></div>
+  <% end %>
+
+  <section class="mt-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3" aria-label="<%= t('admin.title') %>">
+    <% [ [ t("admin.stats.users"), @total_users, t("admin.stats.new_users", count: @new_users), :users, "tone-green" ],
+         [ t("admin.stats.active"), @recently_active_users, t("admin.stats.active_hint"), :arrow_trending_up, "tone-sky" ],
+         [ t("admin.stats.transactions"), @transaction_count_30d, t("admin.stats.transactions_hint"), :arrows_right_left, "tone-indigo" ],
+         [ t("admin.stats.audit_today"), @audit_events_today, t("admin.stats.audit_today_hint"), :shield_check, "tone-slate" ],
+         [ t("admin.stats.suspended"), @suspended_users, t("admin.stats.suspended_hint"), :archive_box, (@suspended_users.positive? ? "tone-rose" : "tone-slate") ],
+         [ t("admin.stats.admins"), @admin_count, t("admin.stats.admins_hint"), :presentation_chart_line, "tone-amber" ] ].each do |label, value, hint, icon, tone| %>
+      <article class="stat-tile min-w-0">
+        <div class="flex items-start justify-between gap-2">
+          <p class="section-label line-clamp-2"><%= label %></p>
+          <span class="stat-icon <%= tone %>"><%= heroicon icon, class: "size-4" %></span>
+        </div>
+        <p class="mt-2 text-2xl font-semibold tracking-tight text-ink tabular-nums sm:text-[1.75rem]"><%= number_with_delimiter(value) %></p>
+        <p class="mt-1 line-clamp-2 text-xs text-muted"><%= hint %></p>
+      </article>
+    <% end %>
+  </section>
+
+  <div class="mt-5 grid items-start gap-5 lg:grid-cols-5">
+    <section class="panel overflow-hidden lg:col-span-3" aria-labelledby="admin-recent-activity">
+      <div class="flex items-start justify-between gap-3 border-b border-line px-4 py-4 sm:px-6">
+        <div class="min-w-0">
+          <h2 id="admin-recent-activity" class="section-title"><%= t("admin.recent_activity") %></h2>
+          <p class="mt-0.5 text-xs text-muted"><%= t("admin.recent_activity_hint") %></p>
+        </div>
+        <%= link_to admin_audit_events_path, class: "link-action shrink-0" do %><%= t("admin.audit.view_all") %><%= heroicon :arrow_right, class: "size-3.5" %><% end %>
+      </div>
+      <% if @recent_audit_events.any? %>
+        <%= render "admin/shared/audit_list", events: @recent_audit_events, show_day: true %>
+      <% else %>
+        <p class="px-6 py-10 text-center text-sm text-muted"><%= t("admin.audit.empty") %></p>
+      <% end %>
+    </section>
+
+    <section class="panel overflow-hidden lg:col-span-2" aria-labelledby="admin-recent-users">
+      <div class="flex items-center justify-between gap-3 border-b border-line px-4 py-4 sm:px-6">
+        <h2 id="admin-recent-users" class="section-title"><%= t("admin.recent_users") %></h2>
+        <%= link_to admin_users_path, class: "link-action shrink-0" do %><%= t("admin.view_all_users") %><%= heroicon :arrow_right, class: "size-3.5" %><% end %>
+      </div>
+      <ul class="divide-y divide-line">
+        <% @recent_users.each do |user| %>
+          <li>
+            <%= link_to admin_user_path(user), class: "flex items-center gap-3 px-4 py-3 transition hover:bg-surface-muted sm:px-6" do %>
+              <span class="avatar size-9 text-xs <%= 'opacity-50' if user.suspended? %>"><%= (user.display_name.to_s.first.presence || user.email_address.first).upcase %></span>
+              <span class="min-w-0 flex-1">
+                <span class="flex items-center gap-1.5"><span class="truncate text-sm font-semibold text-ink"><%= user.display_name %></span><% if user.admin_access? %><span class="status-badge status-badge-info"><%= t("admin.admin_badge") %></span><% end %><% if user.suspended? %><span class="status-badge status-badge-bad"><%= t("admin.suspended") %></span><% end %></span>
+                <span class="block truncate text-xs text-muted"><%= user.email_address %></span>
+              </span>
+              <span class="shrink-0 text-right text-xs text-subtle"><%= user.country_code %><br><%= l(user.created_at.to_date, format: :short) %></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </section>
+  </div>
+</div>

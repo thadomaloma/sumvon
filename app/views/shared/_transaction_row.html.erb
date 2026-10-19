@@ -1,0 +1,16 @@
+<% viewing_account = local_assigns[:account] %>
+<% compact = local_assigns[:compact] %>
+<% sign = transaction_sign(transaction, account: viewing_account) %>
+<%= link_to transaction_path(transaction), class: [ "transaction-row group", compact ? "py-2.5" : "py-3" ], data: { turbo_frame: "_top" } do %>
+  <%= category_icon_tag(transaction.category, transfer: transaction.transfer?, size: compact ? :sm : :md) %>
+  <span class="min-w-0 flex-1">
+    <span class="block truncate font-medium text-ink <%= compact ? 'text-sm' : 'text-[0.9375rem]' %>"><%= transaction.transfer? ? t("transactions.transfer") : transaction.category.name %></span>
+    <span class="mt-0.5 block truncate text-muted <%= compact ? 'text-xs' : 'text-[0.8125rem]' %>">
+      <%= transaction.financial_account.name %><% if transaction.transfer? %> → <%= transaction.transfer_account.name %><% end %>
+      · <%= l(transaction.transaction_date, format: :short) %>
+    </span>
+    <% if transaction.transaction_date > Date.current %><span class="upcoming-badge mt-1" title="<%= t('transactions.upcoming_title') %>"><%= heroicon :clock, class: "size-3" %><%= t("transactions.upcoming") %></span><% end %>
+  </span>
+  <span class="sr-only"><%= transaction.kind %></span>
+  <%= money_tag(transaction.amount_minor, transaction.currency, sign:, class: [ "shrink-0 whitespace-nowrap text-right font-semibold", compact ? "text-sm" : "text-[0.9375rem]", sign == "+" ? "text-positive" : "text-ink" ]) %>
+<% end %>

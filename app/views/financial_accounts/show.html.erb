@@ -1,0 +1,9 @@
+<div class="flex items-start justify-between gap-4">
+  <div><p class="page-eyebrow"><%= @account.account_type.humanize %> · <%= @account.currency %></p><h1 class="page-title mt-1"><%= @account.name %></h1><p class="mt-3 text-3xl font-semibold tabular-nums"><%= format_money(@account.current_balance_minor, @account.currency) %></p><p class="mt-1 text-xs text-muted"><%= t("accounts.balance_since", date: l(@account.balance_started_on, format: :long)) %></p></div>
+  <%= link_to edit_financial_account_path(@account), class: "btn-secondary inline-flex items-center gap-2" do %><%= heroicon :pencil_square, class: "size-5" %><%= t("forms.edit") %><% end %>
+</div>
+<div class="panel mt-7 px-5 sm:px-6">
+  <div class="border-b border-line py-5"><h2 class="text-lg font-semibold"><%= t("accounts.activity") %></h2><p class="mt-1 text-xs text-muted"><%= t("accounts.activity_cutoff_hint", date: l(@account.balance_started_on, format: :long)) %></p></div>
+  <% if @transactions.any? %><div class="divide-y divide-line"><%= render partial: "shared/transaction_row", collection: @transactions, as: :transaction, locals: { account: @account } %></div><%= render "shared/pagination", pagy: @pagy %><% else %><p class="py-10 text-center text-muted"><%= t("transactions.empty_body") %></p><% end %>
+</div>
+<div class="mt-5 flex justify-end"><%= button_to financial_account_archive_path(@account), method: @account.archived? ? :delete : :post, class: "inline-flex items-center gap-1.5 text-sm font-semibold text-muted hover:text-ink" do %><%= heroicon :archive_box, class: "size-4" %><%= @account.archived? ? t("accounts.restore") : t("accounts.archive") %><% end %></div>

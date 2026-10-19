@@ -1,0 +1,9 @@
+<div class="divide-y divide-line md:hidden">
+  <% users.each do |user| %>
+    <%= link_to admin_user_path(user), class: "flex items-center gap-3 p-4 transition active:bg-surface-muted", data: { turbo_frame: "_top" } do %>
+      <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-brand text-sm font-bold text-amber-100"><%= user.display_name.first.upcase %></span>
+      <span class="min-w-0 flex-1"><span class="flex items-center gap-2"><span class="truncate text-sm font-semibold text-ink"><%= user.display_name %></span><% if user.admin_access? %><span class="rounded-full bg-amber-50 px-1.5 py-0.5 text-[9px] font-bold text-amber-800">ADMIN</span><% end %><% if user.suspended? %><span class="rounded-full bg-rose-50 px-1.5 py-0.5 text-[9px] font-bold text-rose-700"><%= t("admin.suspended") %></span><% end %></span><span class="mt-0.5 block truncate text-xs text-muted"><%= user.email_address %></span><span class="mt-2 flex flex-wrap gap-1.5"><span class="rounded-full bg-canvas px-2 py-0.5 text-[10px] font-semibold text-muted"><%= user.country_code %> · <%= user.default_currency %></span><span class="rounded-full bg-canvas px-2 py-0.5 text-[10px] font-semibold text-muted"><%= l(user.created_at.to_date, format: :short) %></span></span></span>
+      <%= heroicon :arrow_right, class: "size-4 shrink-0 text-line-strong" %>
+    <% end %>
+  <% end %>
+</div>

@@ -1,0 +1,44 @@
+<% export_filters = request.query_parameters.slice("month", "kind", "account_id", "category_id").compact_blank %>
+<div class="flex items-end justify-between gap-4">
+  <div><p class="page-eyebrow"><%= t("transactions.eyebrow") %></p><h1 class="page-title mt-1"><%= t("transactions.title") %></h1></div>
+  <div class="flex items-center gap-2">
+    <details class="group relative z-20">
+      <summary class="btn-secondary inline-flex cursor-pointer list-none items-center gap-2"><%= heroicon :arrow_down_tray, class: "size-5" %><%= t("transactions.export") %><%= heroicon :chevron_down, class: "size-4 text-subtle" %></summary>
+      <div class="profile-menu absolute right-0 mt-2 w-64 rounded-2xl border p-2">
+        <%= link_to transactions_path(**export_filters, format: :csv), class: "flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm hover:bg-canvas", data: { turbo: false } do %>
+          <span class="grid size-9 place-items-center rounded-lg bg-brand text-xs font-bold text-white">CSV</span>
+          <span><strong class="block text-ink"><%= t("transactions.export_csv") %></strong><span class="text-xs text-muted"><%= t("transactions.export_csv_hint") %></span></span>
+        <% end %>
+        <%= link_to transactions_statement_path(**export_filters), class: "mt-1 flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm hover:bg-canvas", data: { turbo: false } do %>
+          <span class="grid size-9 place-items-center rounded-lg bg-brand-tint text-xs font-bold text-brand">A4</span>
+          <span><strong class="block text-ink"><%= t("transactions.print_statement") %></strong><span class="text-xs text-muted"><%= t("transactions.print_statement_hint") %></span></span>
+        <% end %>
+      </div>
+    </details>
+  </div>
+</div>
+
+<details class="group panel mt-4 overflow-hidden md:hidden" data-filter-layout="mobile">
+  <summary class="flex min-h-12 cursor-pointer list-none items-center gap-3 px-4 py-2.5">
+    <span class="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-tint text-brand"><%= heroicon :funnel, class: "size-4" %></span>
+    <span class="flex-1 text-sm font-semibold text-ink"><%= t("filters.title") %></span>
+    <% if export_filters.any? %><span class="rounded-full bg-brand px-2.5 py-1 text-[11px] font-bold text-white"><%= t("filters.active", count: export_filters.size) %></span><% end %>
+    <%= heroicon :chevron_down, class: "size-4 text-subtle transition group-open:rotate-180" %>
+  </summary>
+  <%= render "filter_form", form_class: "grid grid-cols-2 gap-2 border-t border-line p-3", field_prefix: "mobile-filter", compact: true, active_filters: export_filters %>
+</details>
+
+<%= render "filter_form", form_class: "panel mt-6 hidden gap-3 p-4 md:grid md:grid-cols-2 lg:grid-cols-5", field_prefix: "desktop-filter", compact: false, active_filters: export_filters %>
+
+<%= turbo_frame_tag "transaction-list", data: { turbo_action: "advance" } do %>
+  <section class="panel mt-4 px-5 sm:px-6">
+    <% if @transactions.any? %>
+      <% @transactions.group_by(&:transaction_date).each do |date, transactions| %>
+        <div class="pt-5 first:pt-4">
+          <h2 class="date-heading"><%= transaction_date_heading(date) %></h2>
+          <div class="divide-y divide-line"><%= render partial: "shared/transaction_row", collection: transactions, as: :transaction %></div>
+        </div>
+      <% end %>
+      <div class="pb-2"><%= render "shared/pagination", pagy: @pagy %></div><% else %><div class="py-12 text-center"><%= heroicon :receipt_percent, class: "mx-auto size-10 text-line-strong" %><h2 class="mt-3 font-semibold"><%= t("transactions.empty_title") %></h2><p class="mt-1 text-sm text-muted"><%= t("transactions.empty_body") %></p><%= link_to t("transactions.add"), new_transaction_path, class: "btn-primary mt-5", data: { turbo_frame: "_top" } %></div><% end %>
+  </section>
+<% end %>
