@@ -7,7 +7,7 @@ gem "propshaft"
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", ">= 2.1"
 # Uploads the nightly SQLite backup to Cloudflare R2 (S3-compatible).
-gem "aws-sdk-s3", "~> 1.0", require: false
+gem "aws-sdk-s3", "~> 1.235", require: false
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
